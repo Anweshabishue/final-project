@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Upload PDF</title>
+    <style>
+        .navbar {
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19) ;
+      padding: 1rem;  
+}
+.logo span {
+    font-weight: 600;
+    font-size: 1.25rem;
+    margin-left: 70px;
+}
+.nav-content {
+     max-width: 1280px; 
+      margin: 0 auto;  
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.log-out {
+    height: 15px;
+    width: 40px;
+    padding: 0.5rem 1rem;
+    color: white;
+    background-color: blue;
+    border: none;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+}
+.container{
+    margin-top: 150px;
+}
+.btn1{
+    color: white;
+    background-color: black;
+    border-radius: 5px;
+}
+.container{
+    height: 300px;
+    width: 500px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-content">
+            <div class="logo">
+                <span>TestMate</span>
+            </div>
+            <a href="{{ url_for('logout') }}" class="log-out">Logout</a>
+        </div>
+    </nav>
+    <center>
+        <div class="container">
+    <h2>Upload a PDF for Summarization</h2>
+    <form action="/upload" method="post" enctype="multipart/form-data">
+        <input type="file" name="pdf_file" required>
+        <button class="btn1" type="submit">Upload</button>
+    </form>
+</div>
+</center>
+</body>
+</html>

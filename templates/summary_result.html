@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>PDF Summary</title>
+    <style>
+        .navbar {
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19) ;
+      padding: 1rem;  
+}
+.logo span {
+    font-weight: 600;
+    font-size: 1.25rem;
+    margin-left: 70px;
+}
+.container{
+    width: 70%;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+button{
+    background-color: black;
+    color: white;
+    margin-top: 10px;
+}
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-content">
+            <div class="logo">
+                <span>TestMate</span>
+            </div>
+        </div>
+    </nav>
+    <center>
+    <div class="container">
+    <h2>Summary:</h2>
+    <p>{{ summary }}</p>
+    <a href="/upload">Upload Another PDF</a>
+</div>
+<a href="{{ download_link }}" download>
+    <button>Download Summary as PDF</button>
+</a>
+</center>
+</body>
+</html>

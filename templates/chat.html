@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chat</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            text-align: center;
+        }
+        .container {
+            width: 50%;
+            margin: 20px auto;
+            background: white;
+            padding: 20px;
+            box-shadow: 0px 0px 10px gray;
+            border-radius: 10px;
+        }
+        .chat-box {
+            height: 400px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            background: #fafafa;
+        }
+        .message {
+            margin: 10px;
+            padding: 8px;
+            border-radius: 5px;
+            display: inline-block;
+            max-width: 80%;
+            word-wrap: break-word;
+        }
+        .user {
+            background: #007bff;
+            color: white;
+            text-align: right;
+            float: right;
+            clear: both;
+        }
+        .bot {
+            background: #ddd;
+            color: black;
+            text-align: left;
+            float: left;
+            clear: both;
+        }
+        .input-box {
+            display: flex;
+            margin-top: 10px;
+        }
+        input, button {
+            padding: 10px;
+            margin: 5px;
+            font-size: 16px;
+        }
+        input {
+            flex: 1;
+        }
+        #new-subject-modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            box-shadow: 0px 0px 10px gray;
+            border-radius: 10px;
+        }
+        .navbar {
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19) ;
+      padding: 1rem;  
+}
+.logo span {
+    font-weight: 600;
+    font-size: 1.25rem;
+    margin-left: 70px;
+}
+.nav-content {
+     max-width: 1280px; 
+      margin: 0 auto;  
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.log-out {
+    height: 15px;
+    width: 40px;
+    padding: 0.5rem 1rem;
+    color: white;
+    background-color: blue;
+    border: none;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+}
+
+/* Default styles for desktop */
+body {
+  font-size: 18px;
+  padding: 20px;
+}
+
+/* Tablets */
+@media (max-width: 768px) {
+  body {
+    font-size: 16px;
+    padding: 15px;
+  }
+}
+
+/* Mobile phones */
+@media (max-width: 480px) {
+  body {
+    font-size: 14px;
+    padding: 10px;
+  }
+
+  .container {
+    flex-direction: column;
+  }
+
+  .btn {
+    width: 100%;
+    margin-top: 10px;
+  }
+}
+
+
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-content">
+            <div class="logo">
+                <span>TestMate</span>
+            </div>
+            <a href="{{ url_for('logout') }}" class="log-out">Logout</a>
+        </div>
+    </nav>
+<div class="container">
+    <h2>AI Chat</h2>
+
+    <!-- Subject Selection -->
+    <div id="subject-section">
+        <input type="text" id="subject" placeholder="Enter a subject (e.g., Physics)">
+        <button onclick="setSubject()">Set Subject</button>
+    </div>
+
+    <!-- Chat Section -->
+    <div id="chat-section" style="display:none;">
+        <div class="chat-box" id="chat-box"></div>
+
+        <div class="input-box">
+            <input type="text" id="message" placeholder="Type your message...">
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+</div>
+
+<!-- Change Subject Modal -->
+<div id="new-subject-modal">
+    <h3>Enter a New Subject:</h3>
+    <input type="text" id="new-subject" placeholder="New topic...">
+    <button onclick="confirmSubjectChange()">Set Subject</button>
+</div>
+
+<script>
+    let pendingSubject = null;  // Store new subject temporarily
+
+    function setSubject() {
+        let subject = $("#subject").val();
+        if (!subject) {
+            alert("Please enter a subject!");
+            return;
+        }
+
+        $.ajax({
+            url: "/set-subject",
+            method: "POST",
+            contentType: "application/json",
+            data: JSON.stringify({ subject: subject }),
+            success: function(response) {
+                if (response.confirm_change) {
+                    pendingSubject = subject;  
+                    if (confirm(response.message)) {
+                        confirmSubjectChange();
+                    }
+                } else {
+                    $("#subject-section").hide();
+                    $("#chat-section").show();
+                    $("#chat-box").html("");  
+                    $("#chat-box").append(`<div class="message bot">Subject set to: ${response.subject}</div>`);
+                }
+            }
+        });
+    }
+
+    function confirmSubjectChange() {
+        let subject = $("#new-subject").val();
+        if (!subject) {
+            alert("Please enter a new subject!");
+            return;
+        }
+
+        $.ajax({
+            url: "/confirm-subject-change",
+            method: "POST",
+            contentType: "application/json",
+            data: JSON.stringify({ subject: subject }),
+            success: function(response) {
+                $("#new-subject-modal").hide();
+                $("#subject-section").hide();
+                $("#chat-section").show();
+                $("#chat-box").html("");  
+                $("#chat-box").append(`<div class="message bot">Subject changed to: ${response.subject}</div>`);
+                pendingSubject = null;
+            }
+        });
+    }
+
+    function sendMessage() {
+        let message = $("#message").val();
+        if (!message) {
+            alert("Please enter a message!");
+            return;
+        }
+
+        $("#chat-box").append(`<div class="message user">${message}</div>`);
+        $("#message").val("");  
+
+        $.ajax({
+            url: "/chat",
+            method: "POST",
+            contentType: "application/json",
+            data: JSON.stringify({ message: message }),
+            success: function(response) {
+                if (response.confirm_change) {
+                    pendingSubject = true;
+                    if (confirm(response.message)) {
+                        $("#new-subject-modal").show();  
+                    }
+                }
+                else {
+                    let formattedResponse = formatResponse(response.response);
+                    $("#chat-box").append(`<div class="message bot">${formattedResponse}</div>`);
+                }
+                // } else {
+                //     $("#chat-box").append(`<div class="message bot">${response.response}</div>`);
+                // }
+                $(".chat-box").scrollTop($(".chat-box")[0].scrollHeight);
+            }
+        });
+    }
+    function formatResponse(responseText) {
+        // Convert markdown-like formatting into HTML
+        responseText = responseText
+            .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")  // Convert **bold** to <strong>
+            .replace(/\*(.*?)\*/g, "<em>$1</em>")  // Convert *italic* to <em>
+            .replace(/```([\s\S]*?)```/g, "<pre><code>$1</code></pre>"); // Convert ```code``` to <pre><code>
+
+        let lines = responseText.split("\n").filter(line => line.trim() !== ""); // Remove empty lines
+
+        if (lines.length > 1) {
+            let formattedResponse = "<ul>"; // Start an unordered list
+            lines.forEach(line => {
+                // Detect numbered or bullet lists
+                if (/^\d+\./.test(line)) {
+                    formattedResponse += `<li>${line.substring(line.indexOf('.') + 1).trim()}</li>`;
+                } else if (/^[-*]/.test(line)) {
+                    formattedResponse += `<li>${line.substring(1).trim()}</li>`;
+                } else {
+                    formattedResponse += `<li>${line.trim()}</li>`; // Default case
+                }
+            });
+            formattedResponse += "</ul>"; // Close unordered list
+            return formattedResponse;
+        } else {
+            return responseText; // If it's a single paragraph, return as normal text
+        }
+    }
+
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Chat with AI</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        .chat-container {
+            width: 50%;
+            margin-top: 40px;
+            padding: 20px;
+            border: 2px solid black;
+            border-radius: 5px;
+        }
+        .chat-box {
+            height: 300px;
+            overflow-y: auto;
+            border: 1px solid gray;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        .user-message {
+            color: blue;
+            font-weight: bold;
+        }
+        .ai-message {
+            color: green;
+        }
+        .navbar {
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19) ;
+      padding: 1rem;  
+}
+.logo span {
+    font-weight: 600;
+    font-size: 1.25rem;
+    margin-left: 70px;
+}
+.sign-out {
+    padding: 0.5rem 1rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+}
+.nav-content {
+     max-width: 1280px; 
+      margin: 0 auto;  
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-content">
+            <div class="logo">
+                <span>TestMate</span>
+            </div>
+            <button class="sign-out" id="signOut">log Out</button>
+        </div>
+    </nav>
+    <center>
+    <div class="chat-container">
+        <h2>Subject-Based AI Chat</h2>
+        <label>Set Subject:</label>
+        <input type="text" id="subjectInput">
+        <button onclick="setSubject()">Set</button>
+
+        <input type="text" id="userInput" placeholder="Type your message here">
+        <button onclick="sendMessage()">Send</button>
+        <h3>Chat</h3>
+        <div class="chat-box" id="chatBox"></div>
+    </div>
+</center>
+    <script>
+        function setSubject() {
+            var subject = $("#subjectInput").val().trim();
+            if (!subject) {
+                alert("Please enter a subject.");
+                return;
+            }
+
+            $.ajax({
+                url: "/set-subject",
+                method: "POST",
+                contentType: "application/json",
+                data: JSON.stringify({ subject: subject }),
+                success: function(response) {
+                    $("#chatBox").append(`<p class="ai-message"><strong>System:</strong> ${response.message}</p>`);
+                    $("#chatBox").scrollTop($("#chatBox")[0].scrollHeight);
+                },
+                error: function() {
+                    alert("Error setting subject. Please try again.");
+                }
+            });
+        }
+
+        function sendMessage() {
+            var message = $("#userInput").val().trim();
+            if (!message) {
+                alert("Please enter a message.");
+                return;
+            }
+
+            $("#chatBox").append(`<p class="user-message">You: ${message}</p>`);
+            $("#userInput").val("");
+
+            $.ajax({
+                url: "/chat",
+                method: "POST",
+                contentType: "application/json",
+                data: JSON.stringify({ message: message }),
+                success: function(response) {
+                    $("#chatBox").append(`<p class="ai-message">AI: ${response.response}</p>`);
+                    $("#chatBox").scrollTop($("#chatBox")[0].scrollHeight);
+                },
+                error: function() {
+                    alert("Error connecting to AI. Please try again.");
+                }
+            });
+        }
+        
+        
+    </script>
+</body>
+</html> -->

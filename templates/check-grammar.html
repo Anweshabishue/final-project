@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Grammar Checker</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <style>
+        textarea{
+            border: 2px solid black;
+        }
+        .btn1{
+            margin-top: 5px;
+            background-color: black;
+            color: white;
+            border-radius: 5px;
+        }
+        .container{
+            margin-top: 150px;
+            height: 500px;
+            width: 500px;
+        }
+        .navbar {
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19) ;
+      padding: 1rem;  
+}
+.logo span {
+    font-weight: 600;
+    font-size: 1.25rem;
+    margin-left: 70px;
+}
+.nav-content {
+     max-width: 1280px; 
+      margin: 0 auto;  
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.log-out {
+    height: 15px;
+    width: 40px;
+    padding: 0.5rem 1rem;
+    color: white;
+    background-color: blue;
+    border: none;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+}
+/* Default styles for desktop */
+body {
+  font-size: 18px;
+  padding: 20px;
+}
+
+/* Tablets */
+@media (max-width: 768px) {
+  body {
+    font-size: 16px;
+    padding: 15px;
+  }
+}
+
+/* Mobile phones */
+@media (max-width: 480px) {
+  body {
+    font-size: 14px;
+    padding: 10px;
+  }
+
+  .container {
+    flex-direction: column;
+  }
+
+  .btn {
+    width: 100%;
+    margin-top: 10px;
+  }
+}
+
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-content">
+            <div class="logo">
+                <span>TestMate</span>
+            </div>
+            <a href="{{ url_for('logout') }}" class="log-out">Logout</a>
+        </div>
+    </nav>
+    <center>
+        <div class="container">
+    <h2>Enter your sentence:</h2>
+    
+        <textarea id="textInput" name="text" rows="4" cols="50"></textarea><br>
+        <button class="btn1"  id="checkGrammar" type="submit">Check Grammar</button>
+    
+    <h3>Corrected Text:</h3>
+    <p id="correctedText"></p>
+
+    <h3>Corrections:</h3>
+    <ul id="correctionsList"></ul>
+
+    <h3>Suggestions:</h3>
+    <ul id="suggestionsList"></ul>
+</div>
+</center>
+
+
+
+<script>
+    $(document).ready(function() {
+        $("#checkGrammar").click(function() {
+            var text = $("#textInput").val();
+
+            if (!text.trim()) {
+                alert("Please enter some text!");
+                return;
+            }
+
+            $.post("/check_grammar", { text: text }, function(response) {
+                if (response.error) {
+                    alert(response.error);
+                    return;
+                }
+
+                $("#correctedText").text(response.corrected);
+                $("#correctionsList").empty();
+                response.corrections.forEach(function(correction) {
+                    $("#correctionsList").append(`<li><b>Error:</b> ${correction.error} <br> 
+                                                   <b>Correction:</b> ${correction.correction} <br> 
+                                                   <b>Explanation:</b> ${correction.explanation}</li>`);
+                });
+
+                $("#suggestionsList").empty();
+                response.suggestions.forEach(function(suggestion) {
+                    $("#suggestionsList").append(`<li>${suggestion}</li>`);
+                });
+            }).fail(function() {
+                alert("Error connecting to server!");
+            });
+        });
+    });
+</script>
+
+</body>
+</html>

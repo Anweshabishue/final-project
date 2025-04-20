@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>first- page</title>
+
+    <style>
+        .navbar {
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19) ;
+      padding: 1rem;  
+}
+
+.nav-content {
+     max-width: 1280px; 
+      margin: 0 auto;  
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+ /* .logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-primary);
+}
+
+.logo svg {
+    color: var(--primary-color);
+} */
+
+.logo span {
+    font-weight: 600;
+    font-size: 1.25rem;
+} 
+
+.log-out {
+    height: 15px;
+    width: 40px;
+    padding: 0.5rem 1rem;
+    color: white;
+    background-color: blue;
+    border: none;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+}
+
+/* .sign-out:hover {
+    color: var(--text-primary);
+} */
+
+/* Main Content Styles */
+ .main-content {
+    max-width: 1280px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+} 
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
+
+.feature-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 1rem;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 1rem;
+}
+
+.feature-card svg {
+    color: blue;
+    width: 2.5rem;
+    height: 2.5rem;
+}
+
+.feature-card h3 {
+    font-size: 1.25rem;
+    /* color: var(--text-primary); */
+}
+
+.feature-card p {
+    /* color: var(--text-secondary); */
+    font-size: 0.875rem;
+}
+
+.feature-btn {
+    margin-top: auto;
+    padding: 0.5rem 1rem;
+    background-color: blue;
+    color: white;
+    border: none;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+@media (max-width: 640px) {
+    .features-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .auth-box {
+        margin: 1rem;
+    }
+}
+    </style>
+</head>
+<body style="background-color: white;">
+    <div class="dashboard hidden" id="dashboard">
+        <nav class="navbar">
+            <div class="nav-content">
+                <div class="logo">
+                    <span>TestMate</span>
+                </div>
+                <a href="{{ url_for('logout') }}" class="log-out">Logout</a>
+            </div>
+        </nav>
+
+        <main class="main-content">
+            <div class="features-grid">
+                <div class="feature-card">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                      </svg>
+                      
+                    <h3>AI chat</h3>
+                    <p>chat with AI and get instant response</p>
+                    <a href="{{ url_for('chat_ui') }}"><button onclick="func3" class="feature-btn">Click here</button></a>
+                </div>
+                <div class="feature-card">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><path d="M12 17h.01"></path></svg> 
+                   <h3>Question Paper Generator</h3>
+                   <p>Generate professional question papers automatically</p>
+                  <a href="{{ url_for('question_generate') }}"><button onclick="func6" class="feature-btn">Click here</button></a> 
+               </div>
+                <div class="feature-card">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                    <h3>PDF Summarizer</h3>
+                    <p>Get concise summaries from PDF documents</p>
+                    <a href="{{ url_for('upload_pdf') }}"><button onclick="func2" class="feature-btn">Click here</button></a>
+                </div>
+                <div class="feature-card">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                    <h3>PDF Q&A</h3>
+                    <p>Extract answers from PDF documents</p>
+                   <a href="{{ url_for('pdf_qa') }}"> <button onclick="func5" class="feature-btn">Click here</button></a>
+                </div>
+                <div class="feature-card">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
+                    <h3>Grammar Checker</h3>
+                    <p>Check and correct grammar in your text</p>
+                   <a href="{{ url_for('gchecker') }}"> <button onclick="func()" class="feature-btn">Click here</button></a>
+                </div>
+                <div class="feature-card">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+                    <h3>Text to To-Do</h3>
+                    <p>Convert text into organized to-do lists</p>
+                   <a href="{{ url_for('todo') }}"> <button onclick="func4()" class="feature-btn">Click here</button></a>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const authContainer = document.getElementById('authContainer');
+        const dashboard = document.getElementById('dashboard');
+        const authForm = document.getElementById('authForm');
+        const toggleAuth = document.getElementById('toggleAuth');
+        const signOut = document.getElementById('signOut');
+        let isSignUp = false;
+
+        toggleAuth.addEventListener('click', (e) => {
+            e.preventDefault();
+            isSignUp = !isSignUp;
+            const title = isSignUp ? 'Create your account' : 'Sign in to your account';
+            const buttonText = isSignUp ? 'Sign Up' : 'Sign In';
+            const toggleText = isSignUp ? 'Already have an account? Sign in' : "Don't have an account? Sign up";
+            
+            document.querySelector('.auth-box h2').textContent = title;
+            document.querySelector('.auth-form button').textContent = buttonText;
+            toggleAuth.textContent = toggleText.split('? ')[1];
+            document.querySelector('.toggle-auth').firstChild.textContent = toggleText.split('? ')[0] + '? ';
+        });
+
+        authForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            authContainer.classList.add('hidden');
+            dashboard.classList.remove('hidden');
+        });
+
+        signOut.addEventListener('click', () => {
+            dashboard.classList.add('hidden');
+            authContainer.classList.remove('hidden');
+        });
+
+        function func(){
+          window.location.href = "{{ url_for('gchecker') }}";
+        }
+        function func2(){
+          window.location.href = "{{ url_for('upload_pdf') }}";
+        }
+        function func3(){
+          window.location.href = "{{ url_for('chat_ui') }}";
+        }
+        function func4(){
+          window.location.href = "{{ url_for('todo') }}";
+        }
+        function func5(){
+          window.location.href = "{{ url_for('pdf_qa') }}";
+        }
+        function func6(){
+          window.location.href = "{{ url_for('question_generate') }}";
+        }
+    </script>
+</body>
+</html>

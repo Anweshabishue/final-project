@@ -1,0 +1,143 @@
+
+.logo span {
+  color: black;
+  /* text-align: left;
+  position: absolute;
+  left: 20px;
+  top: 30px;
+  width: 300px;
+  height: 200px; */
+  /* font-family: "AbrilFatface-Regular", sans-serif; */
+  font-weight: 600;
+    font-size: 1.25rem;
+}
+
+.static-text {
+  color: white;
+  text-align: center;
+  font-family: var(
+    --var-sds-typography-subtitle-font-family,
+    "Inter-Regular",
+    sans-serif
+  );
+  font-size: 64px;
+  line-height: var(--body-large-line-height, 24px);
+  letter-spacing: var(--body-large-tracking, 0.5px);
+  font-weight: 400;
+  position: absolute;
+  left: 50%;
+  translate: -50%;
+   top: 276px; 
+  width: 1402px;
+  height: 430px;
+}
+
+.try-yourself {
+  color: black;
+  text-align: center;
+  font-family: "Roboto-Regular", sans-serif;
+  font-size: 30px;
+  line-height: 24px;
+  letter-spacing: 0.5px;
+  font-weight: 400;
+  position: absolute;
+  left: 914px;
+  top: 450px;
+  width: 201px;
+  height: 73px;
+}
+
+.log-in{
+    color: white;
+  text-align: center;
+  font-family: "Roboto-Regular", sans-serif;
+  font-size: 20px;
+  line-height: 100px;
+  letter-spacing: 0.5px;
+  font-weight: 400;
+  position: absolute;
+  left: 850px;
+  top: 500px;
+  width: 201px;
+  height: 73px
+}
+
+.sign-up{
+    color: white;
+    text-align: center;
+    font-family: "Roboto-Regular", sans-serif;
+    font-size: 20px;
+    line-height: 100px;
+    letter-spacing: 0.5px;
+    font-weight: 400;
+    position: absolute;
+    left: 1000px;
+    top: 500px;
+    width: 201px;
+    height: 73px
+}
+
+button{
+
+    border-radius: 10px;
+    height: 40px;
+    width: 100px;
+}
+
+
+
+
+.wrapper{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 300px;
+}
+.wrapper .static-text{
+  color: black;
+  font-size: 60px;
+  font-weight: 400;
+}
+.wrapper .dynamic-txts{
+  margin-left: 15px;
+  height: 90px;
+  line-height: 90px;
+   overflow: hidden;  
+}
+.dynamic-txts li{
+  list-style: none; 
+  color: black;
+  font-size: 60px;
+  font-weight: 500;
+  position: relative;
+  top: 0;
+  animation: slide 12s steps(4) infinite;
+}
+@keyframes slide {
+  100%{
+    top: -360px;
+  }
+}
+.dynamic-txts li span{
+  position: relative;
+  margin: 5px 0;
+  line-height: 90px;
+}
+.dynamic-txts li span::after{
+  content: "";
+  position: absolute;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background: white;
+  border-left: 2px solid black;
+  animation: typing 3s steps(10) infinite;
+}
+@keyframes typing {
+  40%, 60%{
+    left: calc(100% + 30px);
+  }
+  100%{
+    left: 0;
+  }
+}
