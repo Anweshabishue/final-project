@@ -7,7 +7,6 @@ anyio
 attrs
 bcrypt
 blinker
-bson
 cachelib
 cachetools
 certifi
