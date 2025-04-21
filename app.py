@@ -430,8 +430,8 @@ db = client['todo_db']  # Database name
 collection = db['todos']  # Collection name
 
 # Initialize the TodoProcessor with GROQ API key and MongoDB collection
-GROQ_API_KEY = os.getenv("GROQ_API_KEY", "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")
-processor = TodoProcessor(groq_api_key=GROQ_API_KEY, collection=collection)
+GROQ_API_KEYS = os.getenv("GROQ_API_KEY", "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")
+processor = TodoProcessor(groq_api_key=GROQ_API_KEYS, collection=collection)
 
 # Helper function to serialize MongoDB objects
 def serialize_mongo(obj):
