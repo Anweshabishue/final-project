@@ -11,13 +11,45 @@ import re
 from flask_cors import CORS
 from todo_processor import TodoProcessor
 from pymongo import MongoClient
-from bson.objectid import ObjectId
-from datetime import datetime
-from todo_processor import TodoProcessor
+# from bson.objectid import ObjectId
+from datetime import datetime, timedelta, timezone
+from PyPDF2 import PdfReader
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_community.vectorstores import FAISS
+from langchain_google_genai import GoogleGenerativeAIEmbeddings, ChatGoogleGenerativeAI
+from langchain.chains.question_answering import load_qa_chain
+from langchain.prompts import PromptTemplate
+from dotenv import load_dotenv
+from reportlab.pdfgen import canvas
+from flask import send_from_directory
+import google.generativeai as genai
+from urllib.parse import quote_plus
+# Load environment variables
+load_dotenv()
 
+# MongoDB Atlas Connection String
+username = quote_plus("anweshabishue")
+password = quote_plus("bishue@09")
+MONGO_URI = f"mongodb+srv://{username}:{password}@final.6fe5roa.mongodb.net/?retryWrites=true&w=majority&appName=final"
 
-# app.config['SESSION_TYPE'] = 'filesystem'
-# Session(app)
+# Define todo_collection as None initially
+todo_collection = None
+mongo_client = None
+try:
+    # Create a MongoDB client
+    mongo_client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=5000)
+    # Test the connection
+    mongo_client.admin.command('ping')
+    print("Connected successfully to MongoDB Atlas!")
+    
+    # Initialize your databases
+    todo_db = mongo_client['todo_db']
+    todo_collection = todo_db['todos']
+    
+except Exception as e:
+    print(f"Failed to connect to MongoDB Atlas: {e}")
+    # You might want to exit the app or provide fallback to local MongoDB
+    # For now, we'll continue but will likely fail later if MongoDB is needed
 
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
@@ -27,8 +59,37 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'sec@2004'
 
+# Set up Flask-SQLAlchemy for user management
 db = SQLAlchemy(app)
 
+# Set up upload folder
+UPLOAD_FOLDER = 'uploads'
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+# API Keys
+GROQ_API_KEY = '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'
+GROQ_API_KEYS = os.getenv("GROQ_API_KEY", "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")
+google_api_key = os.getenv("GOOGLE_API_KEY")
+
+# Initialize Groq client
+groq_client = Groq(api_key=GROQ_API_KEY)
+
+# Initialize Google AI if API key is available
+if google_api_key:
+    genai.configure(api_key=google_api_key)
+else:
+    print("Warning: GOOGLE_API_KEY not found in environment variables")
+
+# Initialize TodoProcessor with MongoDB collection
+processor = TodoProcessor(groq_api_key=GROQ_API_KEYS, collection=todo_collection)
+
+# Initialize TodoProcessor only if MongoDB connection was successful
+if todo_collection is not None:
+    processor = TodoProcessor(groq_api_key=GROQ_API_KEYS, collection=todo_collection)
+else:
+    print("Warning: TodoProcessor not initialized due to MongoDB connection failure")
+    processor = None
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -39,9 +100,18 @@ class User(db.Model):
 with app.app_context():
     db.create_all()
 
-# def __repr__(self) -> str:
-#     return f"{self.id} - {self.username} - {self.password}"
+# Custom JSON encoder to handle MongoDB ObjectId and datetime
+class MongoJSONEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, ObjectId):
+            return str(obj)
+        if isinstance(obj, datetime):
+            return obj.isoformat()
+        return super().default(obj)
 
+# Helper function to serialize MongoDB objects
+def serialize_mongo(obj):
+    return json.loads(json.dumps(obj, cls=MongoJSONEncoder))
 
 @app.route('/signup', methods=['GET','POST'])
 def signup():
@@ -53,9 +123,6 @@ def signup():
         if not username or not email or not password:
             flash("All fields are required!", "danger")
             return redirect(url_for('signup'))
-
-         
-
 
         existing_user = User.query.filter_by(email=email).first()
         if existing_user:
@@ -72,8 +139,7 @@ def signup():
  
     return render_template('sign.html')
     
-
-@app.route( '/login',methods=['GET','POST'] )
+@app.route('/login', methods=['GET','POST'])
 def login():
     if request.method == 'POST':
         email = request.form.get('email')
@@ -89,8 +155,6 @@ def login():
             flash("Invalid email or password", "danger")
     return render_template('login.html')
 
-
-
 @app.route('/f3')
 def f3():
     if 'user_id' not in session:
@@ -102,9 +166,6 @@ def f3():
 @app.route("/")
 def home():
     return render_template('f1.html')
-
-GROQ_API_KEY = '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'
-
 
 class GrammarChecker:
     def __init__(self):
@@ -157,10 +218,6 @@ class GrammarChecker:
                 return json.loads(json_str)
 
             return {"error": "Failed to extract valid JSON from response"}
-
-
-            # result = json.loads(response.choices[0].message.content)
-            # return result
         
         except json.JSONDecodeError:
             return {"error": "Failed to parse API response. Invalid JSON format."}   
@@ -168,7 +225,6 @@ class GrammarChecker:
             return {
                 "error": f"An error occurred: {str(e)}"
             }
-
 
 @app.route('/check_grammar', methods=['POST'])
 def check_grammar():
@@ -181,7 +237,6 @@ def check_grammar():
 
     return jsonify(result)
 
-
 @app.route("/gchecker")
 def gchecker():
     return render_template('check-grammar.html')
@@ -191,20 +246,11 @@ def users():
     all_users = User.query.all()  
     return render_template('users.html', users=all_users)
 
-UPLOAD_FOLDER = 'uploads'
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-
-
-GROQ_API_KEY = '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'  
-groq_client = Groq(api_key=GROQ_API_KEY)
-
 def extract_text_from_pdf(pdf_path):
     """Extract text from a PDF file."""
     reader = PdfReader(pdf_path)
     text = "\n".join([page.extract_text() for page in reader.pages if page.extract_text()])
     return text
-
 
 def chunk_text(text, chunk_size=8000):
     """Split text into smaller chunks to handle API limits."""
@@ -227,7 +273,6 @@ def chunk_text(text, chunk_size=8000):
         
     return chunks
 
-
 def summarize_text(text):
     """Generate a summary using Groq API."""
     prompt = f"""Please provide a concise summary of the following text, highlighting the main points:
@@ -244,9 +289,6 @@ Summary:"""
     )
     
     return chat_completion.choices[0].message.content
-
-from reportlab.pdfgen import canvas
-from flask import send_from_directory
 
 @app.route("/upload", methods=["GET", "POST"])
 def upload_pdf():
@@ -283,12 +325,11 @@ def upload_pdf():
         return render_template("summary_result.html", summary=final_summary)
 
     return render_template("upload.html")
+
 @app.route("/download_summary")
 def download_summary():
     return send_from_directory(app.config['UPLOAD_FOLDER'], "summary_output.pdf", as_attachment=True)
 
-
-GROQ_API_KEY = "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"
 BASE_URL = "https://api.groq.com/openai/v1/chat/completions"
 HEADERS = {
     "Authorization": f"Bearer {GROQ_API_KEY}",
@@ -362,7 +403,6 @@ def chat():
     "max_tokens": 5
 }
 
-
     try:
         topic_check_response = requests.post(BASE_URL, headers=HEADERS, json=topic_check_payload)
         topic_check_response.raise_for_status()
@@ -412,31 +452,6 @@ def confirm_subject_change():
     print(f"Subject changed to: {new_subject}")
     return jsonify({"subject": new_subject})
 
-
-
-# Custom JSON encoder to handle MongoDB ObjectId and datetime
-class MongoJSONEncoder(json.JSONEncoder):
-    def default(self, obj):
-        if isinstance(obj, ObjectId):
-            return str(obj)
-        if isinstance(obj, datetime):
-            return obj.isoformat()
-        return super().default(obj)
-
-# MongoDB Connection
-MONGO_URI = "mongodb://localhost:27017/"  # Change if using a remote DB
-client = MongoClient(MONGO_URI)
-db = client['todo_db']  # Database name
-collection = db['todos']  # Collection name
-
-# Initialize the TodoProcessor with GROQ API key and MongoDB collection
-GROQ_API_KEYS = os.getenv("GROQ_API_KEY", "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")
-processor = TodoProcessor(groq_api_key=GROQ_API_KEYS, collection=collection)
-
-# Helper function to serialize MongoDB objects
-def serialize_mongo(obj):
-    return json.loads(json.dumps(obj, cls=MongoJSONEncoder))
-
 @app.route("/todo")
 def todo():
     return render_template('text_to_todo.html')
@@ -444,6 +459,9 @@ def todo():
 # Route to process and save todo
 @app.route("/generate_todo", methods=["POST"])
 def generate_todo():
+    if processor is None:
+        return jsonify({"error": "MongoDB connection not available"}), 503
+        
     data = request.json
     if not data or "text" not in data:
         return jsonify({"error": "No text provided"}), 400
@@ -466,8 +484,11 @@ def generate_todo():
 # Route to fetch all saved todos
 @app.route("/get_todos", methods=["GET"])
 def get_todos():
+    if todo_collection is None:
+        return jsonify({"error": "MongoDB connection not available"}), 503
+        
     try:
-        todos = list(collection.find({}))
+        todos = list(todo_collection.find({}))
         
         # Convert MongoDB documents to JSON-serializable format
         serializable_todos = serialize_mongo(todos)
@@ -480,6 +501,9 @@ def get_todos():
 # Route to delete a todo
 @app.route("/delete_todo/<todo_id>", methods=["DELETE"])
 def delete_todo(todo_id):
+    if processor is None:
+        return jsonify({"error": "MongoDB connection not available"}), 503
+        
     try:
         processor.delete_todo(todo_id)
         return jsonify({"message": "Todo deleted successfully"})
@@ -490,6 +514,9 @@ def delete_todo(todo_id):
 # Route to modify a todo
 @app.route("/modify_todo/<todo_id>", methods=["PUT"])
 def modify_todo(todo_id):
+    if processor is None:
+        return jsonify({"error": "MongoDB connection not available"}), 503
+        
     data = request.json
     if not data or "text" not in data:
         return jsonify({"error": "No text provided"}), 400
@@ -508,21 +535,22 @@ def modify_todo(todo_id):
         app.logger.error(f"Error in modify_todo: {str(e)}")
         return jsonify({"error": str(e)}), 500
 
-from datetime import datetime, timedelta, timezone
-
 @app.route('/get_todos_by_date', methods=['POST'])
 def get_todos_by_date():
+    if todo_collection is None:
+        return jsonify({"error": "MongoDB connection not available"}), 503
+        
     data = request.get_json()
     date_str = data.get('date')  # Example: "2025-04-17"
 
     try:
-        # ✅ This is crucial: make it timezone-aware
+        # Make it timezone-aware
         date_obj = datetime.strptime(date_str, "%Y-%m-%d").replace(tzinfo=timezone.utc)
         next_day = date_obj + timedelta(days=1)
 
         print("Querying from:", date_obj.isoformat(), "to", next_day.isoformat())
 
-        todos = list(collection.find({
+        todos = list(todo_collection.find({
             "created_at": {
                 "$gte": date_obj,
                 "$lt": next_day
@@ -541,41 +569,6 @@ def get_todos_by_date():
     except Exception as e:
         print("Error in /get_todos_by_date:", str(e))
         return jsonify({"error": str(e)}), 500
-
-
-
-from flask import Flask, render_template, request, jsonify
-from PyPDF2 import PdfReader
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_community.vectorstores import FAISS
-from langchain_google_genai import GoogleGenerativeAIEmbeddings, ChatGoogleGenerativeAI
-from langchain.chains.question_answering import load_qa_chain
-from langchain.prompts import PromptTemplate
-from dotenv import load_dotenv
-
-
-UPLOAD_FOLDER = 'uploads'
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-
-# Load API Key
-load_dotenv()
-api_key = os.getenv("GOOGLE_API_KEY")
-
-if not api_key:
-    raise ValueError("❌ GOOGLE_API_KEY not found. Make sure it's in your .env file.")
-
-import google.generativeai as genai
-genai.configure(api_key=api_key)
-
-def get_pdf_text(pdf_paths):
-    text = ""
-    for path in pdf_paths:
-        reader = PdfReader(path)
-        for page in reader.pages:
-            page_text = page.extract_text()
-            if page_text:
-                text += page_text
-    return text
 
 def get_text_chunks(text):
     splitter = RecursiveCharacterTextSplitter(chunk_size=10000, chunk_overlap=1000)
@@ -636,21 +629,10 @@ def ask_question():
     answer = get_answer(question)
     return jsonify({"answer": answer})
 
-
-import google.generativeai as genai
-
-# Load environment variables
-load_dotenv()
-GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
-
-if not GOOGLE_API_KEY:
-    raise ValueError("❌ GOOGLE_API_KEY not found in .env file")
-
-genai.configure(api_key=GOOGLE_API_KEY)
-
 # Gemini model setup
 MODEL_NAME = "gemini-1.5-flash"  # or "gemini-pro"
-model = genai.GenerativeModel(MODEL_NAME)
+if google_api_key:
+    model = genai.GenerativeModel(MODEL_NAME)
 
 @app.route("/question_generate")
 def question_generate():
@@ -669,7 +651,7 @@ def generate_question_paper():
         if not subject or not topics or not duration:
             return jsonify({"error": "Missing required fields"}), 400
 
-         # Safely convert values to integers with default of 0 for empty strings
+        # Safely convert values to integers with default of 0 for empty strings
         mc_count = int(float(question_config.get('mc', {}).get('count') or 0))
         mc_marks = int(float(question_config.get('mc', {}).get('marks') or 0))
         sa_count = int(float(question_config.get('sa', {}).get('count') or 0))
@@ -696,7 +678,6 @@ def generate_question_paper():
 
         IMPORTANT: The total marks for this paper MUST be exactly {total_marks}. Do not exceed this total.
 
-
         Difficulty Distribution:
         - Easy: {difficulty.get('easy')}%
         - Medium: {difficulty.get('medium')}%
@@ -711,17 +692,21 @@ def generate_question_paper():
         """
 
         # Generate response using Gemini
+        if not google_api_key:
+            return jsonify({"error": "Google API key not configured"}), 500
+            
         response = model.generate_content(prompt)
-
         return jsonify({"question_paper": response.text})
 
     except Exception as e:
         app.logger.error(f"Error in question paper generation: {str(e)}")
         return jsonify({"error": str(e)}), 500
-    
+
+# Update MongoDBManager import - assuming this class exists in dbmongo_manager.py
 from dbmongo_manager import MongoDBManager
 
-mongo_manager = MongoDBManager()
+# Initialize MongoDB manager with Atlas connection
+mongo_manager = MongoDBManager(mongo_uri=MONGO_URI)
 
 @app.route("/save_question_paper", methods=["POST"])
 def save_question_paper():
@@ -750,14 +735,7 @@ def dashboard():
     if "user_id" not in session:
         flash("Please login to access this page.", "warning")
         return redirect(url_for("login"))
-    
-
-
-
+    return render_template("dashboard.html")  # Assuming you have this template
 
 if __name__ == "__main__":
     app.run(debug=True, port=7000)
-
-
-
-
