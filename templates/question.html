@@ -25,24 +25,38 @@
       background-color: white;
     }
      */
-    .logo {
+     .navbar {
+      border-bottom: 1px solid #e1e4e8;
+      background-color: white;
+      padding: 0.75rem 1rem;
+    }
+    
+    .nav-content {
+      max-width: 1200px;
+      margin: 0 auto;
       display: flex;
+      justify-content: space-between;
       align-items: center;
-      gap: 12px;
-      color: #213547;
-      font-size: 20px;
-      font-weight: 600;
     }
     
-    .logo-icon {
+    .logo span {
       color: #3b82f6;
-      font-size: 24px;
+      font-weight: 600;
+      font-size: 1.25rem;
     }
     
-    .settings-icon {
-      color: #64748b;
+    .log-out {
+      background-color: #3b82f6;
+      color: white;
+      border: none;
+      border-radius: 0.375rem;
+      padding: 0.5rem 1rem;
+      font-weight: 500;
       cursor: pointer;
-      font-size: 24px;
+    }
+    
+    .log-out:hover {
+      background-color: #2563eb;
     }
     
     .container {
@@ -250,14 +264,14 @@
   </style>
 </head>
 <body>
-    <nav class="navbar">
-        <div class="nav-content">
-            <div class="logo">
-                <span>TestMate</span>
-            </div>
-            <a href="{{ url_for('logout') }}" class="log-out">Logout</a>
-        </div>
-    </nav>
+  <nav class="navbar">
+    <div class="nav-content">
+      <div class="logo">
+        <span>TestMate</span>
+      </div>
+      <button class="log-out">Logout</button>
+    </div>
+  </nav>
   
   <div class="container">
     <div class="panel">
