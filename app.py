@@ -24,6 +24,17 @@ from reportlab.pdfgen import canvas
 from flask import send_from_directory
 import google.generativeai as genai
 from urllib.parse import quote_plus
+# Add this import at the top of your Python file
+from bson.objectid import ObjectId
+from flask import Flask, request, jsonify, render_template, send_from_directory
+import os
+from werkzeug.utils import secure_filename
+from langchain_google_genai import GoogleGenerativeAIEmbeddings
+import google.generativeai as genai
+from langchain.vectorstores import FAISS
+from langchain_google_genai import ChatGoogleGenerativeAI
+from chatpdf import get_pdf_text
+import streamlit as st
 # Load environment variables
 load_dotenv()
 
@@ -51,6 +62,7 @@ except Exception as e:
     # You might want to exit the app or provide fallback to local MongoDB
     # For now, we'll continue but will likely fail later if MongoDB is needed
 
+    
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
 CORS(app)
@@ -293,38 +305,42 @@ Summary:"""
 @app.route("/upload", methods=["GET", "POST"])
 def upload_pdf():
     """Handle PDF uploads and summarization."""
+    summary = None
+    
     if request.method == "POST":
         if "pdf_file" not in request.files:
             return "No file uploaded", 400
-
+            
         file = request.files["pdf_file"]
         if file.filename == "":
             return "No selected file", 400
-
+            
         pdf_path = os.path.join(app.config["UPLOAD_FOLDER"], file.filename)
         file.save(pdf_path)
-
+        
         extracted_text = extract_text_from_pdf(pdf_path)
         if not extracted_text:
             return "Could not extract text from the PDF", 400
-
+            
         chunks = chunk_text(extracted_text)
         summaries = [summarize_text(chunk) for chunk in chunks]
         final_summary = "\n\n".join(summaries)
-
+        
         summary_pdf_path = os.path.join(app.config["UPLOAD_FOLDER"], "summary_output.pdf")
         c = canvas.Canvas(summary_pdf_path)
         text_obj = c.beginText(40, 800)
         text_obj.setFont("Helvetica", 12)
-
+        
         for line in final_summary.split("\n"):
             text_obj.textLine(line)
         c.drawText(text_obj)
         c.save()
-
-        return render_template("summary_result.html", summary=final_summary)
-
-    return render_template("upload.html")
+        
+        # Return the same template but with the summary
+        return render_template("upload.html", summary=final_summary)
+    
+    # Initial page load with no summary
+    return render_template("upload.html", summary=None)
 
 @app.route("/download_summary")
 def download_summary():
@@ -570,6 +586,25 @@ def get_todos_by_date():
         print("Error in /get_todos_by_date:", str(e))
         return jsonify({"error": str(e)}), 500
 
+# Define upload folder
+UPLOAD_FOLDER = os.path.join(os.getcwd(), "uploads")
+# Create the directory if it doesn't exist
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+# Function to extract text from PDF files
+def get_pdf_text(pdf_paths):
+    text = ""
+    for pdf_path in pdf_paths:
+        try:
+            pdf_reader = PdfReader(pdf_path)
+            for page in pdf_reader.pages:
+                page_text = page.extract_text()
+                if page_text:  # Only add text if extraction was successful
+                    text += page_text
+        except Exception as e:
+            print(f"Error extracting text from {pdf_path}: {str(e)}")
+    return text
+
 def get_text_chunks(text):
     splitter = RecursiveCharacterTextSplitter(chunk_size=10000, chunk_overlap=1000)
     return splitter.split_text(text)
@@ -583,15 +618,19 @@ def get_answer(question):
     embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
     db = FAISS.load_local("faiss_index", embeddings, allow_dangerous_deserialization=True)
     docs = db.similarity_search(question)
-
+    
     template = """
     Answer the question as detailed as possible from the provided context, make sure to provide all the details.
-    If the answer is not in the provided context just say, "answer is not available in the context". 
+    If the answer is not in the provided context just say, "answer is not available in the context".
+    
     Don't make up any answers.
-
-    Context:\n{context}\n
-    Question:\n{question}\n
-
+    
+    Context:
+    {context}
+    
+    Question:
+    {question}
+    
     Answer:
     """
     prompt = PromptTemplate(template=template, input_variables=["context", "question"])
@@ -606,28 +645,48 @@ def pdf_qa():
 
 @app.route("/upload_pdfs", methods=["POST"])
 def upload_pdfs():
-    files = request.files.getlist("pdfs[]")
-    file_paths = []
-
-    for file in files:
-        file_path = os.path.join(UPLOAD_FOLDER, file.filename)
-        file.save(file_path)
-        file_paths.append(file_path)
-
-    raw_text = get_pdf_text(file_paths)
-    chunks = get_text_chunks(raw_text)
-    build_vector_store(chunks)
-
-    return jsonify({"message": "PDFs uploaded and processed successfully."})
+    try:
+        # Change here to match the frontend form field name
+        files = request.files.getlist("pdfs")  # Changed from "pdfs[]" to "pdfs"
+        
+        if not files or files[0].filename == '':
+            return jsonify({"error": "No files selected"}), 400
+            
+        file_paths = []
+        for file in files:
+            file_path = os.path.join(UPLOAD_FOLDER, file.filename)
+            file.save(file_path)
+            file_paths.append(file_path)
+        
+        # Check if we have text to process
+        raw_text = get_pdf_text(file_paths)
+        if not raw_text:
+            return jsonify({"error": "Could not extract text from the provided PDFs."}), 400
+        
+        chunks = get_text_chunks(raw_text)
+        build_vector_store(chunks)
+        
+        return jsonify({"message": "PDFs uploaded and processed successfully."})
+    except Exception as e:
+        print(f"Error in upload_pdfs: {str(e)}")
+        return jsonify({"error": str(e)}), 500
 
 @app.route("/ask_question", methods=["POST"])
 def ask_question():
-    question = request.json.get("question")
-    if not question:
-        return jsonify({"error": "No question provided."}), 400
+    try:
+        question = request.json.get("question")
+        if not question:
+            return jsonify({"error": "No question provided."}), 400
+        
+        answer = get_answer(question)
+        return jsonify({"answer": answer})
+    except Exception as e:
+        print(f"Error in ask_question: {str(e)}")
+        return jsonify({"error": str(e)}), 500
 
-    answer = get_answer(question)
-    return jsonify({"answer": answer})
+
+
+
 
 # Gemini model setup
 MODEL_NAME = "gemini-1.5-flash"  # or "gemini-pro"
