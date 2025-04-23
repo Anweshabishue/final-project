@@ -1,85 +1,559 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TestMate - Exam Paper Creation Tool</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css" integrity="sha512-5Hs3dF2AEPkpNAR7UiOHba+lRSJNeM2ECkwxUIxC1Q/FLycGTbNapWXB4tP889k5T5Ju8fs4b1P5z/iB4nMfSQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-  <link rel="stylesheet" href="{{ url_for('static', filename='f1.css') }}">
-   <style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --secondary: #475569;
+      --light: #f8fafc;
+      --dark: #0f172a;
+      --success: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --info: #3b82f6;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    body {
+      background-color: var(--light);
+      color: var(--dark);
+      line-height: 1.6;
+    }
+    
+    .container {
+      width: 100%;
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 1rem;
+    }
+    
+    /* Navigation */
     .navbar {
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19) ;
-      padding: 1rem;  
-}
-.nav-content {
-    max-width: 1280px;
-      margin: 0 auto;  
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-/* .logo span {
-    font-weight: 600;
-    font-size: 1.25rem;
-}  */
-    /* #myVideo {
-  position: fixed;
-  right: 0;
-  bottom: 0;
-  min-width: 100%;
-  min-height: 100%;
-} */
-
-  </style> 
+      background-color: white;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+    }
+    
+    .nav-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: 70px;
+    }
+    
+    .logo {
+      display: flex;
+      align-items: center;
+    }
+    
+    .logo span {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--primary);
+      letter-spacing: -0.5px;
+    }
+    
+    .logo i {
+      font-size: 1.75rem;
+      margin-right: 0.5rem;
+      color: var(--primary);
+    }
+    
+    .nav-buttons {
+      display: flex;
+      gap: 1rem;
+    }
+    
+    /* Hero Section */
+    .hero {
+      padding-top: 120px;
+      padding-bottom: 80px;
+      text-align: center;
+      background: linear-gradient(to bottom, #f0f9ff, white);
+    }
+    
+    .hero-content {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    
+    .hero h1 {
+      font-size: 3rem;
+      font-weight: 800;
+      margin-bottom: 1.5rem;
+      color: var(--dark);
+      line-height: 1.2;
+    }
+    
+    .hero p {
+      font-size: 1.25rem;
+      color: var(--secondary);
+      margin-bottom: 2.5rem;
+    }
+    
+    /* Animation */
+    .dynamic-text {
+      margin: 2rem 0;
+      font-size: 2rem;
+      font-weight: 700;
+      height: 60px;
+      overflow: hidden;
+      color: var(--primary);
+    }
+    
+    .dynamic-text-wrapper {
+      position: relative;
+      display: inline-block;
+    }
+    
+    .dynamic-text-items {
+      position: relative;
+      animation: slide 9s infinite;
+    }
+    
+    .dynamic-text-items div {
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    @keyframes slide {
+      0%, 33.33% {
+        transform: translateY(0);
+      }
+      33.34%, 66.66% {
+        transform: translateY(-60px);
+      }
+      66.67%, 100% {
+        transform: translateY(-120px);
+      }
+    }
+    
+    /* Buttons */
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      border: none;
+      cursor: pointer;
+      font-size: 1rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+    
+    .btn-primary {
+      background-color: var(--primary);
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      background-color: var(--primary-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+    
+    .btn-outline {
+      background-color: transparent;
+      color: var(--primary);
+      border: 2px solid var(--primary);
+    }
+    
+    .btn-outline:hover {
+      background-color: var(--primary);
+      color: white;
+      transform: translateY(-2px);
+    }
+    
+    .btn-lg {
+      padding: 1rem 2.5rem;
+      font-size: 1.125rem;
+    }
+    
+    /* Features Section */
+    .features {
+      padding: 80px 0;
+      background-color: white;
+    }
+    
+    .section-title {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+    
+    .section-title h2 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--dark);
+      margin-bottom: 1rem;
+    }
+    
+    .section-title p {
+      font-size: 1.125rem;
+      color: var(--secondary);
+      max-width: 700px;
+      margin: 0 auto;
+    }
+    
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+    }
+    
+    .feature-card {
+      background-color: white;
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .feature-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+    
+    .feature-icon {
+      width: 60px;
+      height: 60px;
+      border-radius: 12px;
+      background-color: rgba(37, 99, 235, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1.5rem;
+    }
+    
+    .feature-icon i {
+      font-size: 1.75rem;
+      color: var(--primary);
+    }
+    
+    .feature-card h3 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      color: var(--dark);
+    }
+    
+    .feature-card p {
+      color: var(--secondary);
+    }
+    
+    /* CTA Section */
+    .cta {
+      padding: 80px 0;
+      background: linear-gradient(135deg, var(--primary), #3b82f6);
+      color: white;
+      text-align: center;
+    }
+    
+    .cta h2 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+    }
+    
+    .cta p {
+      font-size: 1.25rem;
+      margin-bottom: 2.5rem;
+      max-width: 700px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    
+    .btn-light {
+      background-color: white;
+      color: var(--primary);
+    }
+    
+    .btn-light:hover {
+      background-color: #f8fafc;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+    
+    /* Footer */
+    footer {
+      background-color: var(--dark);
+      color: white;
+      padding: 40px 0;
+    }
+    
+    .footer-content {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 2rem;
+    }
+    
+    .footer-logo span {
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+    
+    .footer-links h4 {
+      font-size: 1.25rem;
+      margin-bottom: 1.5rem;
+      font-weight: 600;
+    }
+    
+    .footer-links ul {
+      list-style: none;
+    }
+    
+    .footer-links li {
+      margin-bottom: 0.75rem;
+    }
+    
+    .footer-links a {
+      color: #cbd5e1;
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+    
+    .footer-links a:hover {
+      color: white;
+    }
+    
+    .footer-bottom {
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 1px solid #334155;
+      text-align: center;
+      color: #94a3b8;
+    }
+    
+    /* Media Queries */
+    @media (max-width: 768px) {
+      .hero h1 {
+        font-size: 2.5rem;
+      }
+      
+      .hero p {
+        font-size: 1.125rem;
+      }
+      
+      .dynamic-text {
+        font-size: 1.5rem;
+        height: 50px;
+      }
+      
+      .dynamic-text-items div {
+        height: 50px;
+      }
+      
+      @keyframes slide {
+        0%, 33.33% {
+          transform: translateY(0);
+        }
+        33.34%, 66.66% {
+          transform: translateY(-50px);
+        }
+        66.67%, 100% {
+          transform: translateY(-100px);
+        }
+      }
+      
+      .btn-lg {
+        padding: 0.875rem 2rem;
+        font-size: 1rem;
+      }
+    }
+  </style>
 </head>
-<body style="background-color: white;">
-   <!-- <video autoplay muted loop id="myVideo">
-    <source src="video-p.mp4" type="video/mp4">
-  </video>  -->
-  
+<body>
+  <!-- Navigation -->
   <nav class="navbar">
-    <div class="nav-content">
+    <div class="container">
+      <div class="nav-content">
         <div class="logo">
-            <span>TestMate</span>
+          <i class="fas fa-file-alt"></i>
+          <span>TestMate</span>
         </div>
+        <div class="nav-buttons">
+          <a href="{{ url_for('login') }}">
+            <button class="btn btn-outline">Log In</button>
+          </a>
+          <a href="{{ url_for('signup') }}">
+            <button class="btn btn-primary">Sign Up</button>
+          </a>
+        </div>
+      </div>
     </div>
-</nav>
-    <!-- <div class="test-mate">
-        <h1><b>TestMate</b></h1>
-    </div> -->
-    <div class="wrapper">
-    <div class="static-text">
-     <b> Your Trusted Tool for Exam Preparation </b> </div>
-      <br>
-      <br>
-      <br>
-        <ul class="dynamic-txts">
-          <li><span>Customize</span></li>
-          <li><span>Generate</span></li>
-          <li><span>and save time</span></li>
-        </ul>
-       
-  </div>
-    <div class="try-yourself">
-       <p> <i class="fa-solid fa-arrow-right-from-bracket" style="margin-right: 10px;"></i>try-yourself</p> 
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-content">
+        <h1>Simplify Exam Preparation with TestMate</h1>
+        <p>Your trusted companion for designing, generating, and managing professional exam papers with ease.</p>
+        
+        <div class="dynamic-text">
+          <div class="dynamic-text-wrapper">
+            <div class="dynamic-text-items">
+              <div>Customize with ease</div>
+              <div>Generate instantly</div>
+              <div>Save valuable time</div>
+            </div>
+          </div>
+        </div>
+        
+        <a href="{{ url_for('signup') }}">
+          <button class="btn btn-primary btn-lg">
+            <i class="fas fa-rocket"></i> Get Started Free
+          </button>
+        </a>
+      </div>
     </div>
-    <div class="log-in">
-        <a href="{{ url_for('login') }}"> <button onclick="func()" style="background-color: black ;color: white;">Log in</button> </a>
+  </section>
+
+  <!-- Features Section -->
+  <section class="features">
+    <div class="container">
+      <div class="section-title">
+        <h2>Why Choose TestMate?</h2>
+        <p>Our comprehensive suite of tools helps educators create professional materials and extract valuable information with ease.</p>
+      </div>
+      
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-comment-dots"></i>
+          </div>
+          <h3>AI Chat</h3>
+          <p>Chat with AI and get instant responses to your questions. Our intelligent assistant helps with exam preparation, educational content, and teaching resources.</p>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-file-alt"></i>
+          </div>
+          <h3>Question Paper Generator</h3>
+          <p>Generate professional question papers automatically. Create comprehensive exams with customized difficulty levels, question types, and formatting options.</p>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-file-pdf"></i>
+          </div>
+          <h3>PDF Summarizer</h3>
+          <p>Get concise summaries from PDF documents. Transform lengthy academic papers, textbooks, and research materials into digestible summaries for efficient review.</p>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-question-circle"></i>
+          </div>
+          <h3>PDF Q&A</h3>
+          <p>Extract answers from PDF documents quickly. Ask specific questions about your documents and receive accurate, relevant answers without manual searching.</p>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-spell-check"></i>
+          </div>
+          <h3>Grammar Checker</h3>
+          <p>Check and correct grammar in your text. Ensure your educational materials, exam questions, and instructions are free from errors with our advanced grammar tool.</p>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-tasks"></i>
+          </div>
+          <h3>Text to To-Do</h3>
+          <p>Convert text into organized to-do lists. Transform lesson plans, project instructions, and curriculum notes into actionable task lists for better productivity.</p>
+        </div>
+      </div>
     </div>
-    <div class="sign-up">
-       <a href="{{ url_for('signup') }}"> <button onclick="func2()" style="background-color: black ;color: white;">Sign up</button> </a>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="cta">
+    <div class="container">
+      <h2>Ready to Transform Your Exam Creation Process?</h2>
+      <p>Join thousands of educators who save hours every week with TestMate's intuitive platform and powerful tools.</p>
+      <a href="{{ url_for('signup') }}">
+        <button class="btn btn-lg btn-light">
+          <i class="fas fa-user-plus"></i> Create Free Account
+        </button>
+      </a>
     </div>
-  
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-logo">
+          <span>TestMate</span>
+          <p style="margin-top: 1rem;">Your trusted tool for exam paper creation and management.</p>
+        </div>
+        
+        <div class="footer-links">
+          <h4>Product</h4>
+          <ul>
+            <li><a href="#">Features</a></li>
+            <li><a href="#">Solutions</a></li>
+            <li><a href="#">Pricing</a></li>
+            <li><a href="#">Updates</a></li>
+          </ul>
+        </div>
+        
+        <div class="footer-links">
+          <h4>Company</h4>
+          <ul>
+            <li><a href="#">About Us</a></li>
+            <li><a href="#">Careers</a></li>
+            <li><a href="#">Contact Us</a></li>
+            <li><a href="#">Blog</a></li>
+          </ul>
+        </div>
+        
+        <div class="footer-links">
+          <h4>Resources</h4>
+          <ul>
+            <li><a href="#">Documentation</a></li>
+            <li><a href="#">Help Center</a></li>
+            <li><a href="#">Community</a></li>
+            <li><a href="#">Webinars</a></li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="footer-bottom">
+        <p>&copy; 2025 TestMate. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
 
   <script>
+    function func() {
+      window.location.href = "{{ url_for('login') }}";
+    }
 
-        function func(){
-          window.location.href = "{{ url_for('login') }}";
-        }
-
-        function func2(){
-          window.location.href = "{{ url_for('signup') }}";
-        }
+    function func2() {
+      window.location.href = "{{ url_for('signup') }}";
+    }
   </script>
 </body>
 </html>
