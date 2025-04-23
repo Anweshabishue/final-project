@@ -3,209 +3,317 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>first- page</title>
-
+    <title>TestMate Dashboard</title>
     <style>
+        :root {
+            --primary: #4361ee;
+            --primary-hover: #3a56d4;
+            --secondary: #f8f9fa;
+            --text-primary: #333;
+            --text-secondary: #6c757d;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --radius: 12px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        
         .navbar {
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19) ;
-      padding: 1rem;  
-}
-
-.nav-content {
-     max-width: 1280px; 
-      margin: 0 auto;  
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
- /* .logo {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    color: var(--text-primary);
-}
-
-.logo svg {
-    color: var(--primary-color);
-} */
-
-.logo span {
-    font-weight: 600;
-    font-size: 1.25rem;
-} 
-
-.log-out {
-    height: 15px;
-    width: 40px;
-    padding: 0.5rem 1rem;
-    color: white;
-    background-color: blue;
-    border: none;
-    border-radius: 0.375rem;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.875rem;
-}
-
-/* .sign-out:hover {
-    color: var(--text-primary);
-} */
-
-/* Main Content Styles */
- .main-content {
-    max-width: 1280px;
-    margin: 2rem auto;
-    padding: 0 1rem;
-} 
-
-.features-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 1.5rem;
-}
-
-.feature-card {
-    background: white;
-    padding: 1.5rem;
-    border-radius: 1rem;
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    gap: 1rem;
-}
-
-.feature-card svg {
-    color: blue;
-    width: 2.5rem;
-    height: 2.5rem;
-}
-
-.feature-card h3 {
-    font-size: 1.25rem;
-    /* color: var(--text-primary); */
-}
-
-.feature-card p {
-    /* color: var(--text-secondary); */
-    font-size: 0.875rem;
-}
-
-.feature-btn {
-    margin-top: auto;
-    padding: 0.5rem 1rem;
-    background-color: blue;
-    color: white;
-    border: none;
-    border-radius: 0.375rem;
-    font-size: 0.875rem;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-
-@media (max-width: 640px) {
-    .features-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .auth-box {
-        margin: 1rem;
-    }
-}
+            background-color: white;
+            box-shadow: var(--shadow);
+            padding: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .nav-content {
+            max-width: 1280px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 1rem;
+        }
+        
+        .logo span {
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: var(--primary);
+        }
+        
+        .log-out {
+            padding: 0.5rem 1.25rem;
+            color: white;
+            background-color: var(--primary);
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: background-color 0.2s;
+        }
+        
+        .log-out:hover {
+            background-color: var(--primary-hover);
+        }
+        
+        .main-content {
+            max-width: 1280px;
+            margin: 2rem auto;
+            padding: 1rem;
+        }
+        
+        .welcome-section {
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        
+        .welcome-section h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+        
+        .welcome-section p {
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .feature-card {
+            background: white;
+            padding: 2rem;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 1rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+            height: 100%;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .feature-icon {
+            background-color: rgba(67, 97, 238, 0.1);
+            padding: 1rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 0.5rem;
+        }
+        
+        .feature-icon svg {
+            color: var(--primary);
+            width: 2rem;
+            height: 2rem;
+        }
+        
+        .feature-card h3 {
+            font-size: 1.25rem;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .feature-card p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+            flex-grow: 1;
+        }
+        
+        .feature-btn {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: var(--radius);
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .feature-btn:hover {
+            background-color: var(--primary-hover);
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 2rem 1rem;
+            background-color: white;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-top: 3rem;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        @media (max-width: 768px) {
+            .features-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .welcome-section h1 {
+                font-size: 1.75rem;
+            }
+            
+            .feature-card {
+                padding: 1.5rem;
+            }
+        }
     </style>
 </head>
-<body style="background-color: white;">
-    <div class="dashboard hidden" id="dashboard">
+<body>
+    <div id="dashboard">
         <nav class="navbar">
             <div class="nav-content">
                 <div class="logo">
                     <span>TestMate</span>
                 </div>
-                <a href="{{ url_for('logout') }}" class="log-out">Logout</a>
+                <a href="{{ url_for('logout') }}" class="log-out">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                        <polyline points="16 17 21 12 16 7"></polyline>
+                        <line x1="21" y1="12" x2="9" y2="12"></line>
+                    </svg>
+                    Logout
+                </a>
             </div>
         </nav>
 
         <main class="main-content">
+            <div class="welcome-section">
+                <h1>Welcome to TestMate</h1>
+                <p>Your all-in-one educational assistant with powerful AI tools to enhance your learning and productivity.</p>
+            </div>
+            
             <div class="features-grid">
                 <div class="feature-card">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-                      </svg>
-                      
-                    <h3>AI chat</h3>
-                    <p>chat with AI and get instant response</p>
-                    <a href="{{ url_for('chat_ui') }}"><button onclick="func3" class="feature-btn">Click here</button></a>
+                    <div class="feature-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                        </svg>
+                    </div>
+                    <h3>AI Chat Assistant</h3>
+                    <p>Chat with our intelligent AI assistant to get instant responses to your academic questions and study concerns.</p>
+                    <a href="{{ url_for('chat_ui') }}" style="width: 100%; text-decoration: none;">
+                        <button class="feature-btn">Start Chatting</button>
+                    </a>
                 </div>
+                
                 <div class="feature-card">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><path d="M12 17h.01"></path></svg> 
-                   <h3>Question Paper Generator</h3>
-                   <p>Generate professional question papers automatically</p>
-                  <a href="{{ url_for('question_generate') }}"><button onclick="func6" class="feature-btn">Click here</button></a> 
-               </div>
+                    <div class="feature-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                            <path d="M12 17h.01"></path>
+                        </svg>
+                    </div>
+                    <h3>Question Paper Generator</h3>
+                    <p>Generate professional-quality question papers automatically for exams, quizzes, and assessments.</p>
+                    <a href="{{ url_for('question_generate') }}" style="width: 100%; text-decoration: none;">
+                        <button class="feature-btn">Generate Questions</button>
+                    </a>
+                </div>
+                
                 <div class="feature-card">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                    <div class="feature-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                        </svg>
+                    </div>
                     <h3>PDF Summarizer</h3>
-                    <p>Get concise summaries from PDF documents</p>
-                    <a href="{{ url_for('upload_pdf') }}"><button onclick="func2" class="feature-btn">Click here</button></a>
+                    <p>Extract concise summaries from PDF documents to quickly grasp key concepts and information.</p>
+                    <a href="{{ url_for('upload_pdf') }}" style="width: 100%; text-decoration: none;">
+                        <button class="feature-btn">Summarize PDF</button>
+                    </a>
                 </div>
+                
                 <div class="feature-card">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                    <div class="feature-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="16" x2="12" y2="12"></line>
+                            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                        </svg>
+                    </div>
                     <h3>PDF Q&A</h3>
-                    <p>Extract answers from PDF documents</p>
-                   <a href="{{ url_for('pdf_qa') }}"> <button onclick="func5" class="feature-btn">Click here</button></a>
+                    <p>Ask specific questions about your PDF documents and get precise answers extracted from the content.</p>
+                    <a href="{{ url_for('pdf_qa') }}" style="width: 100%; text-decoration: none;">
+                        <button class="feature-btn">Ask Questions</button>
+                    </a>
                 </div>
+                
                 <div class="feature-card">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
+                    <div class="feature-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        </svg>
+                    </div>
                     <h3>Grammar Checker</h3>
-                    <p>Check and correct grammar in your text</p>
-                   <a href="{{ url_for('gchecker') }}"> <button onclick="func()" class="feature-btn">Click here</button></a>
+                    <p>Improve your writing by checking and correcting grammar, spelling, and style issues in your text.</p>
+                    <a href="{{ url_for('gchecker') }}" style="width: 100%; text-decoration: none;">
+                        <button class="feature-btn">Check Grammar</button>
+                    </a>
                 </div>
+                
                 <div class="feature-card">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+                    <div class="feature-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="8" y1="6" x2="21" y2="6"></line>
+                            <line x1="8" y1="12" x2="21" y2="12"></line>
+                            <line x1="8" y1="18" x2="21" y2="18"></line>
+                            <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                            <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                            <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                        </svg>
+                    </div>
                     <h3>Text to To-Do</h3>
-                    <p>Convert text into organized to-do lists</p>
-                   <a href="{{ url_for('todo') }}"> <button onclick="func4()" class="feature-btn">Click here</button></a>
+                    <p>Convert plain text notes into organized, actionable to-do lists to manage your tasks efficiently.</p>
+                    <a href="{{ url_for('todo') }}" style="width: 100%; text-decoration: none;">
+                        <button class="feature-btn">Create To-Do List</button>
+                    </a>
                 </div>
             </div>
         </main>
+        
+        <footer class="footer">
+            <p>© 2025 TestMate. All rights reserved.</p>
+        </footer>
     </div>
 
     <script>
-        const authContainer = document.getElementById('authContainer');
-        const dashboard = document.getElementById('dashboard');
-        const authForm = document.getElementById('authForm');
-        const toggleAuth = document.getElementById('toggleAuth');
-        const signOut = document.getElementById('signOut');
-        let isSignUp = false;
-
-        toggleAuth.addEventListener('click', (e) => {
-            e.preventDefault();
-            isSignUp = !isSignUp;
-            const title = isSignUp ? 'Create your account' : 'Sign in to your account';
-            const buttonText = isSignUp ? 'Sign Up' : 'Sign In';
-            const toggleText = isSignUp ? 'Already have an account? Sign in' : "Don't have an account? Sign up";
-            
-            document.querySelector('.auth-box h2').textContent = title;
-            document.querySelector('.auth-form button').textContent = buttonText;
-            toggleAuth.textContent = toggleText.split('? ')[1];
-            document.querySelector('.toggle-auth').firstChild.textContent = toggleText.split('? ')[0] + '? ';
-        });
-
-        authForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            authContainer.classList.add('hidden');
-            dashboard.classList.remove('hidden');
-        });
-
-        signOut.addEventListener('click', () => {
-            dashboard.classList.add('hidden');
-            authContainer.classList.remove('hidden');
-        });
-
         function func(){
           window.location.href = "{{ url_for('gchecker') }}";
         }
