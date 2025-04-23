@@ -1,0 +1,821 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Text to To-Do</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+        /* max-width: 800px; */
+        margin: 0 auto;
+      }
+      textarea {
+        width: 30%;
+        padding: 10px;
+        margin-bottom: 10px;
+      }
+      #btn1 {
+        padding: 8px 16px;
+        background-color: black;
+        color: white;
+        border: none;
+        cursor: pointer;
+        margin: 5px;
+      }
+      button:hover {
+        background-color: black;
+      }
+      .todo-item {
+        border: 1px solid #ddd;
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+      }
+      .delete-btn {
+        background-color: #f44336;
+      }
+      .delete-btn:hover {
+        background-color: #d32f2f;
+      }
+      #debug-info {
+        margin-top: 20px;
+        padding: 10px;
+        background-color: #f0f0f0;
+        border: 1px solid #ccc;
+        display: none;
+      }
+      .navbar {
+        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2),
+          0 6px 20px 0 rgba(0, 0, 0, 0.19);
+        padding: 1rem;
+      }
+      .logo span {
+        font-weight: 600;
+        font-size: 1.25rem;
+        margin-left: 70px;
+      }
+      .nav-content {
+        max-width: 1280px;
+        margin: 0 auto;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .log-out {
+    height: 15px;
+    width: 40px;
+    padding: 0.5rem 1rem;
+    color: white;
+    background-color: blue;
+    border: none;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+}
+    </style>
+  </head>
+  <body>
+    <nav class="navbar">
+      <div class="nav-content">
+        <div class="logo">
+          <span>TestMate</span>
+        </div>
+        <a href="{{ url_for('logout') }}" class="log-out">Logout</a>
+      </div>
+    </nav>
+    <center>
+      <h2>Text to To-Do</h2>
+
+      <textarea
+        id="text-input"
+        rows="5"
+        cols="50"
+        placeholder="Enter text here (e.g., 'Meet with John tomorrow about the project proposal')"
+      ></textarea>
+      <button id="btn1" onclick="generateTodo()">Generate To-Do</button>
+
+      <h3>Extracted To-Do:</h3>
+      <div id="todo-output" class="todo-item" style="display: none"></div>
+
+      <!-- <h3>Saved Tasks:</h3>
+    <div id="saved-todos"></div>  -->
+
+      <!-- <button id="btn1" onclick="fetchSavedTodos()">Load Saved Tasks</button>
+
+    <p id="status-message" style="color: red;"></p>
+    
+     Debug info section 
+    <div id="debug-info"></div>
+    <button id="btn1" onclick="toggleDebug()">Toggle Debug Info</button> -->
+    <h2>Filter Todos by Date</h2>
+
+    <!-- Date Input -->
+    <input type="date" id="todoDate" />
+    <button onclick="fetchAndDisplayTodosByDate()">Fetch Todos</button>
+
+    <!-- Table to Display Todos -->
+    <table
+      id="filtered-todo-table"
+      border="1"
+      cellpadding="10"
+      style="margin-top: 10px; display: none"
+    >
+      <thead>
+        <tr>
+          <th>Person</th>
+          <th>Time</th>
+          <th>Topic</th>
+          <th>Created At</th>
+        </tr>
+      </thead>
+      <tbody id="display-todo"></tbody>
+    </table>
+    </center>
+    <script>
+      // Load saved todos when the page loads
+      $(document).ready(function () {
+        fetchSavedTodos();
+      });
+
+      function toggleDebug() {
+        $("#debug-info").toggle();
+      }
+
+      function debugLog(label, data) {
+        let debugInfo = $("#debug-info");
+        debugInfo.append(
+          `<p><strong>${label}:</strong> ${JSON.stringify(data)}</p>`
+        );
+      }
+
+      function clearDebug() {
+        $("#debug-info").empty();
+      }
+
+      function generateTodo() {
+        clearDebug();
+        let text = $("#text-input").val().trim();
+        if (!text) {
+          $("#status-message").text("Please enter some text!");
+          return;
+        }
+
+        $("#status-message").text("Processing...");
+
+        // Log the input
+        debugLog("Input text", text);
+
+        $.ajax({
+          url: "/generate_todo",
+          method: "POST",
+          contentType: "application/json",
+          data: JSON.stringify({ text: text }),
+          success: function (response) {
+            // Log the complete response for debugging
+            debugLog("Server response", response);
+
+            $("#status-message").text("Todo generated and saved successfully!");
+
+            // Display the processed data
+            if (response.data) {
+              displayTodoOutput(response.data);
+            } else {
+              $("#todo-output")
+                .html("<p>No structured data returned from server</p>")
+                .show();
+            }
+
+            // Refresh the saved todos list
+            fetchSavedTodos();
+          },
+          error: function (err) {
+            debugLog("Error response", err);
+            $("#status-message").text(
+              "Error: " +
+                (err.responseJSON
+                  ? err.responseJSON.error
+                  : "Could not process todo")
+            );
+          },
+        });
+      }
+
+      function displayTodoOutput(data) {
+        let todoOutput = $("#todo-output");
+        todoOutput.empty();
+
+        let html = `
+                <strong>Person:</strong> ${data.person || "Not specified"}<br>
+                <strong>Time:</strong> ${data.time || "Not specified"}<br>
+                <strong>Topic:</strong> ${data.topic || "Not specified"}<br>
+            `;
+
+        if (data.original_text) {
+          html += `<strong>Original Text:</strong> ${data.original_text}`;
+        }
+
+        todoOutput.html(html);
+        todoOutput.show();
+      }
+
+      function fetchSavedTodos() {
+        clearDebug();
+        $("#status-message").text("Loading saved todos...");
+
+        $.ajax({
+          url: "/get_todos",
+          method: "GET",
+          success: function (response) {
+            // Log the response for debugging
+            debugLog("Get todos response", response);
+
+            $("#saved-todos").empty();
+            $("#status-message").text("");
+
+            if (response.todos && response.todos.length > 0) {
+              response.todos.forEach((todo) => {
+                $("#saved-todos").append(`
+                                <div class="todo-item">
+                                    <strong>Person:</strong> ${
+                                      todo.person || "Not specified"
+                                    }<br>
+                                    <strong>Time:</strong> ${
+                                      todo.time || "Not specified"
+                                    }<br>
+                                    <strong>Topic:</strong> ${
+                                      todo.topic || "Not specified"
+                                    }<br>
+                                    <button class="delete-btn" onclick="deleteTodo('${
+                                      todo._id
+                                    }')">Delete</button>
+                                    <button onclick="editTodo('${
+                                      todo._id
+                                    }')">Edit</button>
+                                </div>
+                            `);
+              });
+            } else {
+              $("#saved-todos").html("<p>No saved todos.</p>");
+            }
+          },
+          error: function (err) {
+            debugLog("Error fetching todos", err);
+            $("#status-message").text(
+              "Error fetching saved tasks: " +
+                (err.responseJSON ? err.responseJSON.error : "Unknown error")
+            );
+          },
+        });
+      }
+
+        function deleteTodo(todoId) {
+          clearDebug();
+          $("#status-message").text("Deleting todo...");
+
+          $.ajax({
+            url: "/delete_todo/" + todoId,
+            method: "DELETE",
+            success: function (response) {
+              debugLog("Delete response", response);
+              $("#status-message").text(response.message);
+              fetchSavedTodos(); // Refresh after delete
+            },
+            error: function (err) {
+              debugLog("Error deleting", err);
+              $("#status-message").text(
+                "Error deleting task: " +
+                  (err.responseJSON ? err.responseJSON.error : "Unknown error")
+              );
+            },
+          });
+        }
+
+        function editTodo(todoId) {
+          let newText = prompt("Enter new text for this todo:");
+          if (newText) {
+            clearDebug();
+            $("#status-message").text("Updating todo...");
+
+            debugLog("Edit todo ID", todoId);
+            debugLog("New text", newText);
+
+            $.ajax({
+              url: "/modify_todo/" + todoId,
+              method: "PUT",
+              contentType: "application/json",
+              data: JSON.stringify({ text: newText }),
+              success: function (response) {
+                debugLog("Update response", response);
+                $("#status-message").text(response.message);
+                fetchSavedTodos(); // Refresh after edit
+              },
+              error: function (err) {
+                debugLog("Error updating", err);
+                $("#status-message").text(
+                  "Error updating task: " +
+                    (err.responseJSON ? err.responseJSON.error : "Unknown error")
+                );
+              },
+            });
+          }
+        }
+
+      function filterTodosByDate() {
+        const selectedDate = $("#filter-date").val();
+        if (!selectedDate) {
+          alert("Please select a date.");
+          return;
+        }
+
+        const date = new Date().toISOString().split("T")[0]; // "2025-04-17"
+        fetch("/get_todos_by_date", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ date }),
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            console.log(data);
+            if (data.todos && data.todos.length > 0) {
+              alert("Found " + data.todos.length + " todos!");
+            } else {
+              alert("No todos found on this date.");
+            }
+          });
+
+        $.ajax({
+            url: "/get_todos_by_date",
+            method: "POST",
+            contentType: "application/json",
+            data: JSON.stringify({ date: selectedDate }),
+            success: function(response) {
+                const todos = response.todos;
+                const table = $("#filtered-todo-table");
+                const tbody = table.find("tbody");
+                tbody.empty();
+
+                if (todos.length === 0) {
+                    table.hide();
+                    alert("No todos found on this date.");
+                    return;
+                }
+
+                todos.forEach(todo => {
+                    tbody.append(`
+                        <tr>
+                            <td>${todo.person || "N/A"}</td>
+                            <td>${todo.time || "N/A"}</td>
+                            <td>${todo.topic || "N/A"}</td>
+                            <td>${new Date(todo.created_at).toLocaleString()}</td>
+                        </tr>
+                    `);
+                });
+
+                table.show();
+            },
+            error: function(err) {
+                console.error("Error fetching filtered todos:", err);
+                alert("Something went wrong.");
+            }
+        });
+      }
+      async function fetchAndDisplayTodosByDate() {
+        const dateInput = document.getElementById("todoDate").value;
+        const table = document.getElementById("filtered-todo-table");
+        const tbody = table.querySelector("tbody");
+
+        // Clear previous content
+        tbody.innerHTML = "";
+
+        if (!dateInput) {
+          alert("Please select a date.");
+          table.style.display = "none";
+          return;
+        }
+
+        try {
+          const response = await fetch("/get_todos_by_date", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ date: dateInput }),
+          });
+
+          const data = await response.json();
+
+          if (data.error || !data.todos || data.todos.length === 0) {
+            alert("No todos found for the selected date.");
+            table.style.display = "none";
+            return;
+          }
+
+          data.todos.forEach((todo) => {
+            const row = document.createElement("tr");
+            row.innerHTML = `
+                <td>${todo.person}</td>
+                <td>${todo.time}</td>
+                <td>${todo.topic}</td>
+                <td>${new Date(todo.created_at).toLocaleString()}</td>
+            `;
+            tbody.appendChild(row);
+          });
+
+          table.style.display = "table";
+        } catch (error) {
+          console.error("Error fetching todos:", error);
+          alert("Failed to fetch todos.");
+          table.style.display = "none";
+        }
+      }
+
+      const fetchTodoBtn = document.getElementById("fetch-todo");
+      fetchTodoBtn.addEventListener("click", async (e) => {
+        e.preventDefault();
+
+        const dateInput = document.getElementById("todoDate").value;
+        const table = document.getElementById("filtered-todo-table");
+        const tbody = document.getElementById("display-todo");
+
+        // Clear previous rows
+        tbody.innerHTML = "";
+
+        if (!dateInput) {
+          alert("Please select a date.");
+          table.style.display = "none";
+          return;
+        }
+
+        try {
+          const response = await fetch("/get_todos_by_date", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ date: dateInput }),
+          });
+
+          const data = await response.json();
+
+          if (!data.todos || data.todos.length === 0) {
+            alert("No todos found for the selected date.");
+            table.style.display = "none";
+            return;
+          }
+
+          data.todos.forEach((todo) => {
+            
+            const row = document.createElement("tr");
+            row.innerHTML = `
+        <td>${todo.person}</td>
+        <td>${todo.time}</td>
+        <td>${todo.topic}</td>
+        <td>${new Date(todo.created_at).toLocaleString()}</td>
+      `;
+            tbody.appendChild(row);
+          });
+
+          table.style.display = "table";
+        } catch (error) {
+          console.error("Error fetching todos:", error);
+          alert("Failed to fetch todos.");
+          table.style.display = "none";
+        }
+      });
+
+    async function fetchAndDisplayTodosByDate() {
+      const dateInput = document.getElementById("todoDate").value;
+      const table = document.getElementById("filtered-todo-table");
+      const tbody = document.getElementById("display-todo");
+
+      // Clear previous rows
+      tbody.innerHTML = "";
+
+      if (!dateInput) {
+        alert("Please select a date.");
+        table.style.display = "none";
+        return;
+      }
+
+      try {
+        const response = await fetch("/get_todos_by_date", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ date: dateInput }),
+        });
+
+        const data = await response.json();
+
+        if (!data.todos || data.todos.length === 0) {
+          alert("No todos found for the selected date.");
+          table.style.display = "none";
+          return;
+        }
+
+        data.todos.forEach((todo) => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td>${todo.person || "N/A"}</td>
+            <td>${todo.time || "N/A"}</td>
+            <td>${todo.topic || "N/A"}</td>
+            <td>${new Date(todo.created_at).toLocaleString()}</td>
+          `;
+          tbody.appendChild(row);
+        });
+
+        table.style.display = "table";
+      } catch (error) {
+        console.error("Error fetching todos:", error);
+        alert("Failed to fetch todos.");
+        table.style.display = "none";
+      }
+    }
+    </script>
+  </body>
+</html>
+
+
+--------------------
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat with PDF - Q&A</title>
+    <style>
+        /* Global Styles */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f5f5f5;
+    margin: 0;
+    padding: 0;
+}
+
+ .container {
+    margin: 40px;
+}    
+
+/* header {
+    width: 100%;
+    text-align: center;
+    background-color: #4CAF50;
+    color: white;
+    padding: 20px;
+} */
+
+
+
+
+/* Sidebar Styles */
+.sidebar {
+    height: 300px;
+    width: 20%;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-right: 20px;
+}
+
+.sidebar h2 {
+    text-align: center;
+    color: black;
+}
+
+.file-upload {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.file-upload input {
+    padding: 10px;
+    font-size: 1em;
+}
+
+.file-upload button {
+    padding: 10px;
+    font-size: 1em;
+    background-color: black;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.file-upload button:hover {
+    background-color: black;
+}
+
+/* Main Content Area Styles */
+.main-content {
+    height: 100%;
+    width: 100%;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-left: 150px;
+}
+
+.main-content h2 {
+    text-align: center;
+    color: black;
+}
+.ff{
+    display: flex;
+    margin-top: 70px;
+}
+
+#user-question {
+    width: 80%;
+    height: 150px;
+    padding: 15px;
+    font-size: 1.1em;
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+#submit-btn {
+    padding: 12px 20px;
+    font-size: 1.1em;
+    background-color: black;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    width: 100%;
+}
+
+#submit-btn:hover {
+    background-color: black;
+}
+
+#answer-area {
+    margin-top: 20px;
+}
+
+#answer-text {
+    font-size: 1.2em;
+    color: #333;
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 8px;
+    width: 100%;
+    max-width: 700px; /* or whatever fixed max you want */
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
+
+
+}
+.navbar {
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19) ;
+      padding: 1rem;  
+}
+.logo span {
+    font-weight: 600;
+    font-size: 1.25rem;
+    margin-left: 70px;
+}
+.nav-content {
+     max-width: 1280px; 
+      margin: 0 auto;  
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.log-out {
+    height: 15px;
+    width: 40px;
+    padding: 0.5rem 1rem;
+    color: white;
+    background-color: blue;
+    border: none;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+}
+body {
+  font-size: 18px;
+  padding: 20px;
+}
+
+/* Tablets */
+@media (max-width: 768px) {
+  body {
+    font-size: 16px;
+    padding: 15px;
+  }
+}
+
+/* Mobile phones */
+@media (max-width: 480px) {
+  body {
+    font-size: 14px;
+    padding: 10px;
+  }
+
+  .container {
+    flex-direction: column;
+  }
+
+  .btn {
+    width: 100%;
+    margin-top: 10px;
+  }
+}
+
+
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-content">
+            <div class="logo">
+                <span>TestMate</span>
+            </div>
+            <a href="{{ url_for('logout') }}" class="log-out">Logout</a>
+        </div>
+    </nav>
+    <!-- Main Container -->
+     
+    <div class="container">
+        <!-- Header -->
+         <center>
+        <header>
+            <!-- <h1>📄 Chat with PDF</h1> -->
+            <h3>Upload your PDFs and ask questions about the content!</h3>
+        </header>
+    </center>
+        <!-- Sidebar -->
+         <div class="ff">
+        <div class="sidebar">
+            <h2>📁 Menu</h2>
+            <div class="file-upload"> 
+                <input type="file" id="pdf-files" multiple accept=".pdf">
+                <button id="upload-btn">Upload PDFs</button>
+             </div> 
+            <p id="upload-status"></p>
+        </div>
+       <center>
+        <!-- Main Content Area -->
+        <div class="main-content">
+            <h2>Ask a Question</h2>
+            <textarea id="user-question" placeholder="Type your question here..."></textarea>
+            <button id="submit-btn">Submit Question</button>
+            <div id="answer-area">
+                <h3>Answer:</h3>
+                <p id="answer-text"></p>
+            </div>
+        </div>
+    </div>
+    </div>
+
+</center>
+<script>
+    
+document.getElementById("upload-btn").addEventListener("click", async () => {
+    const files = document.getElementById("pdf-files").files;
+    if (files.length === 0) return alert("Please select at least one PDF.");
+
+    const formData = new FormData();
+    for (const file of files) {
+        formData.append("pdfs[]", file);
+    }
+
+    const res = await fetch("/upload_pdfs", { method: "POST", body: formData });
+    const data = await res.json();
+    document.getElementById("upload-status").textContent = data.message;
+});
+
+document.getElementById("submit-btn").addEventListener("click", async () => {
+    const question = document.getElementById("user-question").value.trim();
+    if (!question) return alert("Please type a question.");
+
+    const res = await fetch("/ask_question", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ question })
+    });
+
+    const data = await res.json();
+    document.getElementById("answer-text").textContent = data.answer;
+});
+
+</script>
+</body>
+</html>
+
