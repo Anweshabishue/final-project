@@ -2,72 +2,381 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Upload PDF</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TestMate PDF Summarizer</title>
     <style>
+        :root {
+            --primary: #1a73e8;
+            --primary-dark: #1557b0;
+            --light-gray: #f5f7fa;
+            --border-color: #e0e0e0;
+            --shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--light-gray);
+        }
+        
+        /* Updated navbar to match the image */
         .navbar {
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19) ;
-      padding: 1rem;  
-}
-.logo span {
-    font-weight: 600;
-    font-size: 1.25rem;
-    margin-left: 70px;
-}
-.nav-content {
-     max-width: 1280px; 
-      margin: 0 auto;  
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-.log-out {
-    height: 15px;
-    width: 40px;
-    padding: 0.5rem 1rem;
-    color: white;
-    background-color: blue;
-    border: none;
-    border-radius: 0.375rem;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.875rem;
-}
-.container{
-    margin-top: 150px;
-}
-.btn1{
-    color: white;
-    background-color: black;
-    border-radius: 5px;
-}
-.container{
-    height: 300px;
-    width: 500px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
+            background-color: white;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 0.5rem 1rem;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .nav-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            color: var(--primary);
+            font-weight: 600;
+            font-size: 1.25rem;
+        }
+        
+        .logout-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            text-decoration: none;
+        }
+        
+        .logout-btn:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .main-container {
+            max-width: 1000px;
+            margin: 80px auto 40px;
+            padding: 2rem;
+        }
+        
+        .app-container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+        
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .tab {
+            padding: 1rem 1.5rem;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            font-weight: 500;
+            color: #666;
+        }
+        
+        .tab.active {
+            border-bottom: 3px solid var(--primary);
+            color: var(--primary);
+        }
+        
+        .tab-content {
+            display: none;
+            padding: 2rem;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .upload-area {
+            text-align: center;
+            padding: 3rem 1rem;
+            border: 2px dashed var(--border-color);
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            transition: all 0.2s;
+        }
+        
+        .upload-area:hover {
+            border-color: var(--primary);
+            background-color: rgba(26, 115, 232, 0.05);
+        }
+        
+        .upload-icon {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .file-label {
+            background-color: var(--primary);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            display: inline-block;
+            margin-top: 1rem;
+            transition: background-color 0.2s;
+        }
+        
+        .file-label:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .file-name {
+            margin-top: 1rem;
+            color: #666;
+        }
+        
+        .action-button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            display: inline-block;
+            text-decoration: none;
+            margin-top: 1rem;
+        }
+        
+        .action-button:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .summary-container {
+            background-color: var(--light-gray);
+            border-radius: 8px;
+            padding: 1.5rem;
+            max-height: 500px;
+            overflow-y: auto;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border-color);
+        }
+        
+        .summary-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .summary-title {
+            font-size: 1.25rem;
+            color: #333;
+        }
+        
+        .action-buttons {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+        
+        .loader {
+            display: none;
+            text-align: center;
+            padding: 2rem 0;
+        }
+        
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top: 4px solid var(--primary);
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 1rem;
+                margin-top: 80px;
+            }
+            
+            .tab {
+                padding: 0.75rem 1rem;
+                font-size: 0.9rem;
+            }
+            
+            .tab-content {
+                padding: 1.5rem 1rem;
+            }
+        }
     </style>
 </head>
 <body>
+    <!-- Updated navbar based on the image -->
     <nav class="navbar">
         <div class="nav-content">
-            <div class="logo">
-                <span>TestMate</span>
-            </div>
-            <a href="{{ url_for('logout') }}" class="log-out">Logout</a>
+            <div class="logo">TestMate</div>
+            <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
         </div>
     </nav>
-    <center>
-        <div class="container">
-    <h2>Upload a PDF for Summarization</h2>
-    <form action="/upload" method="post" enctype="multipart/form-data">
-        <input type="file" name="pdf_file" required>
-        <button class="btn1" type="submit">Upload</button>
-    </form>
-</div>
-</center>
+    
+    <div class="main-container">
+        <div class="app-container">
+            <div class="tabs">
+                <div class="tab {% if not summary %}active{% endif %}" onclick="switchTab('upload')">Upload PDF</div>
+                <div class="tab {% if summary %}active{% endif %}" onclick="switchTab('summary')">Summary</div>
+            </div>
+            
+            <div id="upload-tab" class="tab-content {% if not summary %}active{% endif %}">
+                <h2>Upload a PDF for Summarization</h2>
+                <p style="margin: 1rem 0; color: #666;">Upload your PDF document to generate a concise summary highlighting the main points.</p>
+                
+                <form id="upload-form" action="/upload" method="post" enctype="multipart/form-data">
+                    <div class="upload-area" id="drop-area">
+                        <div class="upload-icon">📁</div>
+                        <h3>Drag & Drop your PDF here</h3>
+                        <p>or</p>
+                        <input type="file" name="pdf_file" id="file-input" class="file-input" required accept=".pdf">
+                        <label for="file-input" class="file-label">Browse Files</label>
+                        <div id="file-name" class="file-name"></div>
+                    </div>
+                    
+                    <button type="submit" class="action-button">Generate Summary</button>
+                </form>
+                
+                <div id="loader" class="loader">
+                    <div class="spinner"></div>
+                    <p>Generating summary... This may take a moment.</p>
+                </div>
+            </div>
+            
+            <div id="summary-tab" class="tab-content {% if summary %}active{% endif %}">
+                <div class="summary-header">
+                    <h2 class="summary-title">Summary Result</h2>
+                </div>
+                
+                <div class="summary-container">
+                    <p id="summary-content">{{ summary if summary else 'No summary available. Please upload a PDF first.' }}</p>
+                </div>
+                
+                <div class="action-buttons">
+                    <button onclick="switchTab('upload')" class="action-button">Upload Another PDF</button>
+                    {% if summary %}
+                    <a href="/download_summary" class="action-button">Download Summary as PDF</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // File input handling
+        const fileInput = document.getElementById('file-input');
+        const fileName = document.getElementById('file-name');
+        const dropArea = document.getElementById('drop-area');
+        const uploadForm = document.getElementById('upload-form');
+        const loader = document.getElementById('loader');
+        
+        // Show file name when selected
+        fileInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                fileName.textContent = this.files[0].name;
+                dropArea.style.borderColor = '#1a73e8';
+            }
+        });
+        
+        // Drag and drop functionality
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, preventDefaults, false);
+        });
+        
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropArea.addEventListener(eventName, highlight, false);
+        });
+        
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, unhighlight, false);
+        });
+        
+        function highlight() {
+            dropArea.style.borderColor = '#1a73e8';
+            dropArea.style.backgroundColor = 'rgba(26, 115, 232, 0.1)';
+        }
+        
+        function unhighlight() {
+            dropArea.style.borderColor = '#e0e0e0';
+            dropArea.style.backgroundColor = 'transparent';
+        }
+        
+        dropArea.addEventListener('drop', handleDrop, false);
+        
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            
+            if (files && files[0]) {
+                fileInput.files = files;
+                fileName.textContent = files[0].name;
+            }
+        }
+        
+        // Form submission
+        uploadForm.addEventListener('submit', function() {
+            loader.style.display = 'block';
+            document.getElementById('upload-tab').querySelector('.action-button').style.display = 'none';
+        });
+        
+        // Tab switching
+        function switchTab(tabName) {
+            // Update tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            document.querySelector(`.tab[onclick="switchTab('${tabName}')"]`).classList.add('active');
+            
+            // Update content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            document.getElementById(`${tabName}-tab`).classList.add('active');
+        }
+        
+        // Auto-switch to summary tab if summary exists
+        {% if summary %}
+            switchTab('summary');
+        {% endif %}
+    </script>
 </body>
 </html>
