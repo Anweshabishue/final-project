@@ -3,448 +3,622 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Chat</title>
+    <title>TestMate AI Chat</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
+        :root {
+            --primary-color: #2563eb;
+            --primary-dark: #1d4ed8;
+            --bg-color: #f8fafc;
+            --chat-bg: #ffffff;
+            --user-msg-bg: #2563eb;
+            --bot-msg-bg: #f1f5f9;
+            --border-color: #e2e8f0;
+            --text-color: #1e293b;
+            --light-text: #64748b;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .navbar {
+            background-color: white;
+            padding: 1rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .nav-content {
+            max-width: 1280px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo span {
+            font-weight: 600;
+            font-size: 1.25rem;
+            color: #2563eb;
+        }
+        
+        .log-out {
+            padding: 0.5rem 1rem;
+            color: white;
+            background-color: #2563eb;
+            border: none;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 0.875rem;
+            display: inline-block;
+        }
+        
+        .log-out:hover {
+            background-color: #1d4ed8;
+        }
+        
+        .container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+        
+        .welcome-screen, .chat-interface {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .welcome-screen {
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
             text-align: center;
         }
-        .container {
-            width: 50%;
-            margin: 20px auto;
-            background: white;
-            padding: 20px;
-            box-shadow: 0px 0px 10px gray;
-            border-radius: 10px;
+        
+        .welcome-screen h1 {
+            margin-bottom: 1.5rem;
+            font-size: 2rem;
+            color: var(--primary-color);
         }
-        .chat-box {
-            height: 400px;
-            overflow-y: auto;
-            border: 1px solid #ddd;
-            padding: 10px;
-            background: #fafafa;
+        
+        .welcome-screen p {
+            margin-bottom: 2rem;
+            color: var(--light-text);
         }
-        .message {
-            margin: 10px;
-            padding: 8px;
-            border-radius: 5px;
-            display: inline-block;
-            max-width: 80%;
-            word-wrap: break-word;
+        
+        .subject-form {
+            width: 100%;
+            max-width: 500px;
         }
-        .user {
-            background: #007bff;
-            color: white;
-            text-align: right;
-            float: right;
-            clear: both;
-        }
-        .bot {
-            background: #ddd;
-            color: black;
-            text-align: left;
-            float: left;
-            clear: both;
-        }
-        .input-box {
+        
+        .input-group {
             display: flex;
-            margin-top: 10px;
+            margin-bottom: 1rem;
         }
-        input, button {
-            padding: 10px;
-            margin: 5px;
-            font-size: 16px;
-        }
-        input {
+        
+        .input-group input {
             flex: 1;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.375rem 0 0 0.375rem;
+            font-size: 1rem;
         }
-        #new-subject-modal {
+        
+        .input-group button {
+            padding: 0.75rem 1.5rem;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 0 0.375rem 0.375rem 0;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        
+        .input-group button:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .chat-interface {
             display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: white;
-            padding: 20px;
-            box-shadow: 0px 0px 10px gray;
-            border-radius: 10px;
         }
-        .navbar {
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19) ;
-      padding: 1rem;  
-}
-.logo span {
-    font-weight: 600;
-    font-size: 1.25rem;
-    margin-left: 70px;
-}
-.nav-content {
-     max-width: 1280px; 
-      margin: 0 auto;  
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-.log-out {
-    height: 15px;
-    width: 40px;
-    padding: 0.5rem 1rem;
-    color: white;
-    background-color: blue;
-    border: none;
-    border-radius: 0.375rem;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.875rem;
-}
-
-/* Default styles for desktop */
-body {
-  font-size: 18px;
-  padding: 20px;
-}
-
-/* Tablets */
-@media (max-width: 768px) {
-  body {
-    font-size: 16px;
-    padding: 15px;
-  }
-}
-
-/* Mobile phones */
-@media (max-width: 480px) {
-  body {
-    font-size: 14px;
-    padding: 10px;
-  }
-
-  .container {
-    flex-direction: column;
-  }
-
-  .btn {
-    width: 100%;
-    margin-top: 10px;
-  }
-}
-
-
-    </style>
-</head>
-<body>
-    <nav class="navbar">
-        <div class="nav-content">
-            <div class="logo">
-                <span>TestMate</span>
-            </div>
-            <a href="{{ url_for('logout') }}" class="log-out">Logout</a>
-        </div>
-    </nav>
-<div class="container">
-    <h2>AI Chat</h2>
-
-    <!-- Subject Selection -->
-    <div id="subject-section">
-        <input type="text" id="subject" placeholder="Enter a subject (e.g., Physics)">
-        <button onclick="setSubject()">Set Subject</button>
-    </div>
-
-    <!-- Chat Section -->
-    <div id="chat-section" style="display:none;">
-        <div class="chat-box" id="chat-box"></div>
-
-        <div class="input-box">
-            <input type="text" id="message" placeholder="Type your message...">
-            <button onclick="sendMessage()">Send</button>
-        </div>
-    </div>
-</div>
-
-<!-- Change Subject Modal -->
-<div id="new-subject-modal">
-    <h3>Enter a New Subject:</h3>
-    <input type="text" id="new-subject" placeholder="New topic...">
-    <button onclick="confirmSubjectChange()">Set Subject</button>
-</div>
-
-<script>
-    let pendingSubject = null;  // Store new subject temporarily
-
-    function setSubject() {
-        let subject = $("#subject").val();
-        if (!subject) {
-            alert("Please enter a subject!");
-            return;
-        }
-
-        $.ajax({
-            url: "/set-subject",
-            method: "POST",
-            contentType: "application/json",
-            data: JSON.stringify({ subject: subject }),
-            success: function(response) {
-                if (response.confirm_change) {
-                    pendingSubject = subject;  
-                    if (confirm(response.message)) {
-                        confirmSubjectChange();
-                    }
-                } else {
-                    $("#subject-section").hide();
-                    $("#chat-section").show();
-                    $("#chat-box").html("");  
-                    $("#chat-box").append(`<div class="message bot">Subject set to: ${response.subject}</div>`);
-                }
-            }
-        });
-    }
-
-    function confirmSubjectChange() {
-        let subject = $("#new-subject").val();
-        if (!subject) {
-            alert("Please enter a new subject!");
-            return;
-        }
-
-        $.ajax({
-            url: "/confirm-subject-change",
-            method: "POST",
-            contentType: "application/json",
-            data: JSON.stringify({ subject: subject }),
-            success: function(response) {
-                $("#new-subject-modal").hide();
-                $("#subject-section").hide();
-                $("#chat-section").show();
-                $("#chat-box").html("");  
-                $("#chat-box").append(`<div class="message bot">Subject changed to: ${response.subject}</div>`);
-                pendingSubject = null;
-            }
-        });
-    }
-
-    function sendMessage() {
-        let message = $("#message").val();
-        if (!message) {
-            alert("Please enter a message!");
-            return;
-        }
-
-        $("#chat-box").append(`<div class="message user">${message}</div>`);
-        $("#message").val("");  
-
-        $.ajax({
-            url: "/chat",
-            method: "POST",
-            contentType: "application/json",
-            data: JSON.stringify({ message: message }),
-            success: function(response) {
-                if (response.confirm_change) {
-                    pendingSubject = true;
-                    if (confirm(response.message)) {
-                        $("#new-subject-modal").show();  
-                    }
-                }
-                else {
-                    let formattedResponse = formatResponse(response.response);
-                    $("#chat-box").append(`<div class="message bot">${formattedResponse}</div>`);
-                }
-                // } else {
-                //     $("#chat-box").append(`<div class="message bot">${response.response}</div>`);
-                // }
-                $(".chat-box").scrollTop($(".chat-box")[0].scrollHeight);
-            }
-        });
-    }
-    function formatResponse(responseText) {
-        // Convert markdown-like formatting into HTML
-        responseText = responseText
-            .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")  // Convert **bold** to <strong>
-            .replace(/\*(.*?)\*/g, "<em>$1</em>")  // Convert *italic* to <em>
-            .replace(/```([\s\S]*?)```/g, "<pre><code>$1</code></pre>"); // Convert ```code``` to <pre><code>
-
-        let lines = responseText.split("\n").filter(line => line.trim() !== ""); // Remove empty lines
-
-        if (lines.length > 1) {
-            let formattedResponse = "<ul>"; // Start an unordered list
-            lines.forEach(line => {
-                // Detect numbered or bullet lists
-                if (/^\d+\./.test(line)) {
-                    formattedResponse += `<li>${line.substring(line.indexOf('.') + 1).trim()}</li>`;
-                } else if (/^[-*]/.test(line)) {
-                    formattedResponse += `<li>${line.substring(1).trim()}</li>`;
-                } else {
-                    formattedResponse += `<li>${line.trim()}</li>`; // Default case
-                }
-            });
-            formattedResponse += "</ul>"; // Close unordered list
-            return formattedResponse;
-        } else {
-            return responseText; // If it's a single paragraph, return as normal text
-        }
-    }
-
-</script>
-</body>
-</html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<!-- <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Chat with AI</title>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <style>
+        
         .chat-container {
-            width: 50%;
-            margin-top: 40px;
-            padding: 20px;
-            border: 2px solid black;
-            border-radius: 5px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: var(--chat-bg);
+            border-radius: 0.5rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
         }
-        .chat-box {
-            height: 300px;
+        
+        .chat-header {
+            padding: 1rem;
+            background-color: var(--primary-color);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .change-subject {
+            background: transparent;
+            border: 1px solid white;
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            cursor: pointer;
+        }
+        
+        .change-subject:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .chat-messages {
+            flex: 1;
+            padding: 1rem;
             overflow-y: auto;
-            border: 1px solid gray;
-            padding: 10px;
-            margin-bottom: 10px;
+            display: flex;
+            flex-direction: column;
         }
+        
+        .message-group {
+            margin-bottom: 1.5rem;
+            max-width: 90%;
+        }
+        
         .user-message {
-            color: blue;
+            align-self: flex-end;
+        }
+        
+        .bot-message {
+            align-self: flex-start;
+        }
+        
+        .message-content {
+            padding: 1rem;
+            border-radius: 0.75rem;
+            line-height: 1.5;
+        }
+        
+        .user-message .message-content {
+            background-color: var(--user-msg-bg);
+            color: white;
+            border-bottom-right-radius: 0;
+        }
+        
+        .bot-message .message-content {
+            background-color: var(--bot-msg-bg);
+            border-bottom-left-radius: 0;
+        }
+        
+        .message-header {
+            font-size: 0.875rem;
+            margin-bottom: 0.25rem;
             font-weight: bold;
         }
-        .ai-message {
-            color: green;
+        
+        .user-message .message-header {
+            text-align: right;
+            color: var(--primary-color);
         }
-        .navbar {
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19) ;
-      padding: 1rem;  
-}
-.logo span {
-    font-weight: 600;
-    font-size: 1.25rem;
-    margin-left: 70px;
-}
-.sign-out {
-    padding: 0.5rem 1rem;
-    background: none;
-    border: none;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.875rem;
-}
-.nav-content {
-     max-width: 1280px; 
-      margin: 0 auto;  
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
+        
+        .bot-message .message-header {
+            color: var(--primary-color);
+        }
+        
+        .input-area {
+            padding: 1rem;
+            border-top: 1px solid var(--border-color);
+            background-color: white;
+        }
+        
+        .message-input-group {
+            display: flex;
+            position: relative;
+        }
+        
+        .message-input {
+            flex: 1;
+            padding: 0.75rem;
+            padding-right: 3rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.375rem;
+            font-size: 1rem;
+            resize: none;
+            min-height: 50px;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+        
+        .message-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+        }
+        
+        .send-button {
+            position: absolute;
+            right: 0.5rem;
+            bottom: 0.5rem;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 2rem;
+            height: 2rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+        }
+        
+        .send-button:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 0.5rem;
+            max-width: 500px;
+            width: 100%;
+        }
+        
+        .modal h3 {
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+        
+        .modal input {
+            width: 100%;
+            padding: 0.75rem;
+            margin-bottom: 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.375rem;
+        }
+        
+        .modal input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+        }
+        
+        .modal button {
+            padding: 0.75rem 1.5rem;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 0.375rem;
+            cursor: pointer;
+        }
+        
+        .modal button:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .message-content ul, .message-content ol {
+            padding-left: 1.5rem;
+            margin: 0.5rem 0;
+        }
+        
+        .message-content li {
+            margin-bottom: 0.25rem;
+        }
+        
+        .message-content pre {
+            background-color: #f0f0f0;
+            padding: 0.75rem;
+            border-radius: 0.25rem;
+            overflow-x: auto;
+            margin: 0.5rem 0;
+        }
+        
+        .message-content p {
+            margin-bottom: 0.75rem;
+        }
+        
+        .message-content p:last-child {
+            margin-bottom: 0;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 0.5rem;
+            }
+            
+            .message-group {
+                max-width: 95%;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .welcome-screen h1 {
+                font-size: 1.5rem;
+            }
+            
+            .input-group {
+                flex-direction: column;
+            }
+            
+            .input-group input {
+                border-radius: 0.375rem;
+                margin-bottom: 0.5rem;
+            }
+            
+            .input-group button {
+                border-radius: 0.375rem;
+            }
+        }
     </style>
 </head>
 <body>
     <nav class="navbar">
         <div class="nav-content">
             <div class="logo">
-                <span>TestMate</span>
+                <span style="color: #2563eb; font-weight: 600;">TestMate</span>
             </div>
-            <button class="sign-out" id="signOut">log Out</button>
+            <a href="/logout" class="log-out">Logout</a>
         </div>
     </nav>
-    <center>
-    <div class="chat-container">
-        <h2>Subject-Based AI Chat</h2>
-        <label>Set Subject:</label>
-        <input type="text" id="subjectInput">
-        <button onclick="setSubject()">Set</button>
-
-        <input type="text" id="userInput" placeholder="Type your message here">
-        <button onclick="sendMessage()">Send</button>
-        <h3>Chat</h3>
-        <div class="chat-box" id="chatBox"></div>
+    
+    <div class="container">
+        <!-- Welcome Screen with Subject Selection -->
+        <div class="welcome-screen" id="welcome-screen">
+            <h1>Welcome to TestMate AI</h1>
+            <p>To get started, enter a subject you'd like to chat about.</p>
+            <div class="subject-form">
+                <div class="input-group">
+                    <input type="text" id="subject" placeholder="Enter a subject (e.g., Physics, Mathematics, Programming)">
+                    <button onclick="setSubject()">Start Chat</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Chat Interface -->
+        <div class="chat-interface" id="chat-interface">
+            <div class="chat-container">
+                <div class="chat-header">
+                    <h2 id="current-subject">Subject</h2>
+                    <button class="change-subject" onclick="showSubjectModal()">Change Subject</button>
+                </div>
+                <div class="chat-messages" id="chat-messages"></div>
+                <div class="input-area">
+                    <div class="message-input-group">
+                        <textarea class="message-input" id="message" placeholder="Type your message..." rows="1"></textarea>
+                        <button class="send-button" onclick="sendMessage()">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-</center>
+    
+    <!-- Change Subject Modal -->
+    <div class="modal" id="subject-modal">
+        <div class="modal-content">
+            <h3>Change Subject</h3>
+            <input type="text" id="new-subject" placeholder="Enter a new subject">
+            <button onclick="confirmSubjectChange()">Set Subject</button>
+        </div>
+    </div>
+    
     <script>
+        // Auto-resize textarea as user types
+        document.getElementById('message').addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+            if (this.scrollHeight > 150) {
+                this.style.height = '150px';
+            }
+        });
+        
+        // Allow Enter key to send message, Shift+Enter for new line
+        document.getElementById('message').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+        
         function setSubject() {
-            var subject = $("#subjectInput").val().trim();
+            let subject = $("#subject").val();
             if (!subject) {
-                alert("Please enter a subject.");
+                alert("Please enter a subject!");
                 return;
             }
-
+            
             $.ajax({
                 url: "/set-subject",
                 method: "POST",
                 contentType: "application/json",
                 data: JSON.stringify({ subject: subject }),
                 success: function(response) {
-                    $("#chatBox").append(`<p class="ai-message"><strong>System:</strong> ${response.message}</p>`);
-                    $("#chatBox").scrollTop($("#chatBox")[0].scrollHeight);
-                },
-                error: function() {
-                    alert("Error setting subject. Please try again.");
+                    $("#welcome-screen").hide();
+                    $("#chat-interface").show();
+                    $("#current-subject").text(response.subject);
+                    
+                    // Add welcome message
+                    addBotMessage(`I'm your TestMate AI assistant for ${response.subject}. How can I help you today?`);
                 }
             });
         }
-
-        function sendMessage() {
-            var message = $("#userInput").val().trim();
-            if (!message) {
-                alert("Please enter a message.");
+        
+        function showSubjectModal() {
+            document.getElementById('subject-modal').style.display = 'flex';
+        }
+        
+        function confirmSubjectChange() {
+            let subject = $("#new-subject").val();
+            if (!subject) {
+                alert("Please enter a new subject!");
                 return;
             }
-
-            $("#chatBox").append(`<p class="user-message">You: ${message}</p>`);
-            $("#userInput").val("");
-
+            
+            $.ajax({
+                url: "/confirm-subject-change",
+                method: "POST",
+                contentType: "application/json",
+                data: JSON.stringify({ subject: subject }),
+                success: function(response) {
+                    document.getElementById('subject-modal').style.display = 'none';
+                    $("#current-subject").text(response.subject);
+                    $("#chat-messages").html("");
+                    
+                    // Add welcome message for new subject
+                    addBotMessage(`Subject changed to: ${response.subject}. How can I help you with this topic?`);
+                }
+            });
+        }
+        
+        function sendMessage() {
+            let messageInput = document.getElementById('message');
+            let message = messageInput.value.trim();
+            
+            if (!message) {
+                return;
+            }
+            
+            addUserMessage(message);
+            messageInput.value = '';
+            messageInput.style.height = 'auto';
+            
             $.ajax({
                 url: "/chat",
                 method: "POST",
                 contentType: "application/json",
                 data: JSON.stringify({ message: message }),
                 success: function(response) {
-                    $("#chatBox").append(`<p class="ai-message">AI: ${response.response}</p>`);
-                    $("#chatBox").scrollTop($("#chatBox")[0].scrollHeight);
+                    if (response.confirm_change) {
+                        if (confirm(response.message)) {
+                            showSubjectModal();
+                        }
+                    } else {
+                        addBotMessage(response.response);
+                    }
                 },
-                error: function() {
-                    alert("Error connecting to AI. Please try again.");
+                error: function(xhr, status, error) {
+                    addBotMessage("Sorry, there was an error processing your request. Please try again.");
                 }
             });
         }
         
+        function addUserMessage(message) {
+            const messageGroup = document.createElement('div');
+            messageGroup.className = 'message-group user-message';
+            
+            messageGroup.innerHTML = `
+                <div class="message-header">You</div>
+                <div class="message-content">${message}</div>
+            `;
+            
+            document.getElementById('chat-messages').appendChild(messageGroup);
+            scrollToBottom();
+        }
         
+        function addBotMessage(message) {
+            const messageGroup = document.createElement('div');
+            messageGroup.className = 'message-group bot-message';
+            
+            const formattedMessage = formatResponse(message);
+            
+            messageGroup.innerHTML = `
+                <div class="message-header">TestMate AI</div>
+                <div class="message-content">${formattedMessage}</div>
+            `;
+            
+            document.getElementById('chat-messages').appendChild(messageGroup);
+            scrollToBottom();
+        }
+        
+        function scrollToBottom() {
+            const chatMessages = document.getElementById('chat-messages');
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
+        function formatResponse(responseText) {
+            // Convert markdown-like formatting into HTML
+            responseText = responseText
+                .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")  // Bold
+                .replace(/\*(.*?)\*/g, "<em>$1</em>")  // Italic
+                .replace(/```([\s\S]*?)```/g, "<pre><code>$1</code></pre>")  // Code blocks
+                .replace(/`([^`]+)`/g, "<code>$1</code>");  // Inline code
+            
+            // Handle line breaks and paragraphs
+            let paragraphs = responseText.split("\n\n");
+            let formattedParagraphs = [];
+            
+            paragraphs.forEach(paragraph => {
+                // Check if this paragraph contains list items
+                let lines = paragraph.split("\n").filter(line => line.trim() !== "");
+                
+                // Check if lines look like a list
+                if (lines.length > 1 && (lines.some(line => /^(\d+\.|[-*•])/.test(line)))) {
+                    let isBulletList = lines.some(line => /^[-*•]/.test(line));
+                    let listTag = isBulletList ? "ul" : "ol";
+                    let formattedList = `<${listTag}>`;
+                    
+                    lines.forEach(line => {
+                        // Remove the bullet/number and create list item
+                        let content = line.replace(/^(\d+\.|[-*•])\s*/, '').trim();
+                        formattedList += `<li>${content}</li>`;
+                    });
+                    
+                    formattedList += `</${listTag}>`;
+                    formattedParagraphs.push(formattedList);
+                } else {
+                    // Regular paragraph
+                    formattedParagraphs.push(`<p>${paragraph}</p>`);
+                }
+            });
+            
+            return formattedParagraphs.join("");
+        }
+        
+        // Close modal when clicking outside of it
+        window.onclick = function(event) {
+            const modal = document.getElementById('subject-modal');
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
     </script>
 </body>
-</html> -->
+</html>
