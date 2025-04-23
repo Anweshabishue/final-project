@@ -3,198 +3,361 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat with PDF - Q&A</title>
+    <title>TestMate - PDF Q&A</title>
     <style>
-        /* Global Styles */
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f5f5f5;
-    margin: 0;
-    padding: 0;
-}
-
- .container {
-    margin: 40px;
-}    
-
-/* header {
-    width: 100%;
-    text-align: center;
-    background-color: #4CAF50;
-    color: white;
-    padding: 20px;
-} */
-
-
-
-
-/* Sidebar Styles */
-.sidebar {
-    height: 300px;
-    width: 20%;
-    padding: 20px;
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    margin-right: 20px;
-}
-
-.sidebar h2 {
-    text-align: center;
-    color: black;
-}
-
-.file-upload {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-bottom: 20px;
-}
-
-.file-upload input {
-    padding: 10px;
-    font-size: 1em;
-}
-
-.file-upload button {
-    padding: 10px;
-    font-size: 1em;
-    background-color: black;
-    color: white;
-    border: none;
-    cursor: pointer;
-    border-radius: 5px;
-    transition: background-color 0.3s ease;
-}
-
-.file-upload button:hover {
-    background-color: black;
-}
-
-/* Main Content Area Styles */
-.main-content {
-    height: 100%;
-    width: 100%;
-    padding: 20px;
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    margin-left: 150px;
-}
-
-.main-content h2 {
-    text-align: center;
-    color: black;
-}
-.ff{
-    display: flex;
-    margin-top: 70px;
-}
-
-#user-question {
-    width: 80%;
-    height: 150px;
-    padding: 15px;
-    font-size: 1.1em;
-    margin-bottom: 20px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-}
-
-#submit-btn {
-    padding: 12px 20px;
-    font-size: 1.1em;
-    background-color: black;
-    color: white;
-    border: none;
-    cursor: pointer;
-    border-radius: 5px;
-    width: 100%;
-}
-
-#submit-btn:hover {
-    background-color: black;
-}
-
-#answer-area {
-    margin-top: 20px;
-}
-
-#answer-text {
-    font-size: 1.2em;
-    color: #333;
-    background-color: #f9f9f9;
-    padding: 20px;
-    border-radius: 8px;
-    width: 100%;
-    max-width: 700px; /* or whatever fixed max you want */
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-    white-space: normal;
-
-
-}
-.navbar {
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19) ;
-      padding: 1rem;  
-}
-.logo span {
-    font-weight: 600;
-    font-size: 1.25rem;
-    margin-left: 70px;
-}
-.nav-content {
-     max-width: 1280px; 
-      margin: 0 auto;  
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-.log-out {
-    height: 15px;
-    width: 40px;
-    padding: 0.5rem 1rem;
-    color: white;
-    background-color: blue;
-    border: none;
-    border-radius: 0.375rem;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.875rem;
-}
-body {
-  font-size: 18px;
-  padding: 20px;
-}
-
-/* Tablets */
-@media (max-width: 768px) {
-  body {
-    font-size: 16px;
-    padding: 15px;
-  }
-}
-
-/* Mobile phones */
-@media (max-width: 480px) {
-  body {
-    font-size: 14px;
-    padding: 10px;
-  }
-
-  .container {
-    flex-direction: column;
-  }
-
-  .btn {
-    width: 100%;
-    margin-top: 10px;
-  }
-}
-
-
+        :root {
+            --primary-color: #2563eb;
+            --primary-light: #dbeafe;
+            --primary-dark: #1e40af;
+            --text-color: #1f2937;
+            --light-gray: #f3f4f6;
+            --border-color: #e5e7eb;
+            --white: #ffffff;
+            --error-color: #ef4444;
+            --success-color: #10b981;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--text-color);
+            background-color: var(--light-gray);
+            line-height: 1.6;
+        }
+        
+        .navbar {
+            background-color: var(--white);
+            box-shadow: var(--shadow);
+            padding: 1rem 1.5rem;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        .nav-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo span {
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: var(--primary-color);
+        }
+        
+        .logout-btn {
+            padding: 0.5rem 1rem;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 0.375rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            text-decoration: none;
+        }
+        
+        .logout-btn:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .app-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+            display: flex;
+            gap: 2rem;
+        }
+        
+        .sidebar {
+            width: 300px;
+            background-color: var(--white);
+            border-radius: 0.5rem;
+            box-shadow: var(--shadow);
+            padding: 1.5rem;
+            height: fit-content;
+        }
+        
+        .sidebar-title {
+            color: var(--primary-color);
+            font-size: 1.25rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .file-upload {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .file-input-container {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .file-input-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            background-color: var(--light-gray);
+            border: 2px dashed var(--border-color);
+            border-radius: 0.375rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .file-input-label:hover {
+            border-color: var(--primary-color);
+            background-color: var(--primary-light);
+        }
+        
+        .file-input {
+            position: absolute;
+            width: 0.1px;
+            height: 0.1px;
+            opacity: 0;
+            overflow: hidden;
+            z-index: -1;
+        }
+        
+        .file-label-text {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .file-icon {
+            color: var(--primary-color);
+        }
+        
+        .selected-files {
+            margin-top: 0.5rem;
+            font-size: 0.875rem;
+        }
+        
+        .upload-btn {
+            padding: 0.75rem;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 0.375rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        
+        .upload-btn:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .upload-btn:disabled {
+            background-color: var(--border-color);
+            cursor: not-allowed;
+        }
+        
+        .status-message {
+            margin-top: 1rem;
+            padding: 0.75rem;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+        }
+        
+        .status-success {
+            background-color: var(--success-color);
+            color: white;
+        }
+        
+        .status-error {
+            background-color: var(--error-color);
+            color: white;
+        }
+        
+        .status-loading {
+            background-color: var(--primary-light);
+            color: var(--primary-dark);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .main-content {
+            flex: 1;
+            background-color: var(--white);
+            border-radius: 0.5rem;
+            box-shadow: var(--shadow);
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .section-title {
+            color: var(--primary-color);
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        
+        .question-area {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .question-textarea {
+            padding: 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.375rem;
+            font-size: 1rem;
+            resize: vertical;
+            min-height: 100px;
+            font-family: inherit;
+        }
+        
+        .question-textarea:focus {
+            outline: 2px solid var(--primary-light);
+            border-color: var(--primary-color);
+        }
+        
+        .submit-btn {
+            padding: 0.75rem;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 0.375rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            align-self: flex-end;
+            width: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        
+        .submit-btn:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .submit-btn:disabled {
+            background-color: var(--border-color);
+            cursor: not-allowed;
+        }
+        
+        .answer-area {
+            margin-top: 1.5rem;
+            flex: 1;
+        }
+        
+        .answer-title {
+            color: var(--primary-color);
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .answer-content {
+            padding: 1.5rem;
+            background-color: var(--primary-light);
+            border-radius: 0.375rem;
+            min-height: 200px;
+            white-space: pre-wrap;
+        }
+        
+        .loading {
+            display: none;
+            justify-content: center;
+            margin: 2rem 0;
+        }
+        
+        .loading-spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left-color: var(--primary-color);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        
+        .small-spinner {
+            border-width: 2px;
+            width: 20px;
+            height: 20px;
+        }
+        
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: help;
+            margin-left: 0.5rem;
+        }
+        
+        .tooltip .tooltip-text {
+            visibility: hidden;
+            width: 200px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.75rem;
+        }
+        
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        @media (max-width: 768px) {
+            .app-container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+            }
+        }
     </style>
 </head>
 <body>
@@ -203,74 +366,246 @@ body {
             <div class="logo">
                 <span>TestMate</span>
             </div>
-            <a href="{{ url_for('logout') }}" class="log-out">Logout</a>
+            <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
         </div>
     </nav>
-    <!-- Main Container -->
-     
-    <div class="container">
-        <!-- Header -->
-         <center>
-        <header>
-            <!-- <h1>📄 Chat with PDF</h1> -->
-            <h3>Upload your PDFs and ask questions about the content!</h3>
-        </header>
-    </center>
-        <!-- Sidebar -->
-         <div class="ff">
+    
+    <div class="app-container">
         <div class="sidebar">
-            <h2>📁 Menu</h2>
-            <div class="file-upload"> 
-                <input type="file" id="pdf-files" multiple accept=".pdf">
-                <button id="upload-btn">Upload PDFs</button>
-             </div> 
-            <p id="upload-status"></p>
+            <h2 class="sidebar-title">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                    <polyline points="10 9 9 9 8 9"></polyline>
+                </svg>
+                Upload Documents
+                <div class="tooltip">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="16" x2="12" y2="12"></line>
+                        <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                    </svg>
+                    <span class="tooltip-text">Upload PDF files to ask questions about their content</span>
+                </div>
+            </h2>
+            <div class="file-upload">
+                <div class="file-input-container">
+                    <label for="pdf-files" class="file-input-label">
+                        <div class="file-label-text">
+                            <svg class="file-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="17 8 12 3 7 8"></polyline>
+                                <line x1="12" y1="3" x2="12" y2="15"></line>
+                            </svg>
+                            <span>Click to select PDF files</span>
+                        </div>
+                    </label>
+                    <input type="file" id="pdf-files" class="file-input" multiple accept=".pdf">
+                    <div id="selected-files" class="selected-files"></div>
+                </div>
+                <button id="upload-btn" class="upload-btn" disabled>
+                    <span>Upload PDFs</span>
+                </button>
+            </div>
+            <div id="upload-status" class="status-message" style="display: none;"></div>
         </div>
-       <center>
-        <!-- Main Content Area -->
+        
         <div class="main-content">
-            <h2>Ask a Question</h2>
-            <textarea id="user-question" placeholder="Type your question here..."></textarea>
-            <button id="submit-btn">Submit Question</button>
-            <div id="answer-area">
-                <h3>Answer:</h3>
-                <p id="answer-text"></p>
+            <h2 class="section-title">Ask a Question About Your Documents</h2>
+            
+            <div class="question-area">
+                <textarea id="user-question" class="question-textarea" placeholder="Type your question here..."></textarea>
+                <button id="submit-btn" class="submit-btn" disabled>Ask</button>
+            </div>
+            
+            <div class="loading" id="loading">
+                <div class="loading-spinner"></div>
+            </div>
+            
+            <div class="answer-area">
+                <h3 class="answer-title">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="16" x2="12" y2="12"></line>
+                        <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                    </svg>
+                    Answer
+                </h3>
+                <div id="answer-text" class="answer-content"></div>
             </div>
         </div>
     </div>
-    </div>
 
-</center>
-<script>
-    
-document.getElementById("upload-btn").addEventListener("click", async () => {
-    const files = document.getElementById("pdf-files").files;
-    if (files.length === 0) return alert("Please select at least one PDF.");
-
-    const formData = new FormData();
-    for (const file of files) {
-        formData.append("pdfs[]", file);
-    }
-
-    const res = await fetch("/upload_pdfs", { method: "POST", body: formData });
-    const data = await res.json();
-    document.getElementById("upload-status").textContent = data.message;
-});
-
-document.getElementById("submit-btn").addEventListener("click", async () => {
-    const question = document.getElementById("user-question").value.trim();
-    if (!question) return alert("Please type a question.");
-
-    const res = await fetch("/ask_question", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question })
-    });
-
-    const data = await res.json();
-    document.getElementById("answer-text").textContent = data.answer;
-});
-
-</script>
+    <script>
+        // Global variables
+        let filesUploaded = false;
+        const fileInput = document.getElementById("pdf-files");
+        const uploadBtn = document.getElementById("upload-btn");
+        const uploadStatus = document.getElementById("upload-status");
+        const selectedFiles = document.getElementById("selected-files");
+        const submitBtn = document.getElementById("submit-btn");
+        const questionInput = document.getElementById("user-question");
+        const loadingEl = document.getElementById("loading");
+        const answerEl = document.getElementById("answer-text");
+        
+        // Update selected files display and enable/disable upload button
+        fileInput.addEventListener("change", () => {
+            const files = fileInput.files;
+            uploadBtn.disabled = files.length === 0;
+            
+            if (files.length > 0) {
+                selectedFiles.textContent = `${files.length} file(s) selected: ${Array.from(files).map(f => f.name).join(", ")}`;
+            } else {
+                selectedFiles.textContent = "";
+            }
+        });
+        
+        // Handle file upload
+        uploadBtn.addEventListener("click", async () => {
+            const files = fileInput.files;
+            if (files.length === 0) {
+                showStatus("Please select at least one PDF file.", "error");
+                return;
+            }
+            
+            // Check if all files are PDFs
+            for (const file of files) {
+                if (!file.type.includes("pdf")) {
+                    showStatus("Only PDF files are allowed.", "error");
+                    return;
+                }
+            }
+            
+            // Check file sizes (limit to 10MB per file)
+            const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+            for (const file of files) {
+                if (file.size > MAX_FILE_SIZE) {
+                    showStatus(`File ${file.name} exceeds the 10MB size limit.`, "error");
+                    return;
+                }
+            }
+            
+            // Prepare upload
+            uploadBtn.disabled = true;
+            uploadBtn.innerHTML = `
+                <div class="loading-spinner small-spinner"></div>
+                <span>Uploading...</span>
+            `;
+            showStatus("Uploading and processing PDFs...", "loading");
+            
+            const formData = new FormData();
+            for (const file of files) {
+                formData.append("pdfs", file); // Changed from "pdfs[]" to "pdfs"
+            }
+            
+            try {
+                const response = await fetch("/upload_pdfs", { 
+                    method: "POST", 
+                    body: formData 
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`Upload failed with status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                filesUploaded = true;
+                submitBtn.disabled = false;
+                showStatus(data.message, "success");
+                
+                // Reset upload button
+                uploadBtn.innerHTML = "<span>Upload PDFs</span>";
+                uploadBtn.disabled = false;
+                
+            } catch (error) {
+                console.error("Upload error:", error);
+                showStatus("Error uploading files: " + error.message, "error");
+                
+                // Reset upload button
+                uploadBtn.innerHTML = "<span>Upload PDFs</span>";
+                uploadBtn.disabled = false;
+            }
+        });
+        
+        // Handle question submission
+        submitBtn.addEventListener("click", async () => {
+            const question = questionInput.value.trim();
+            if (!question) {
+                alert("Please type a question.");
+                return;
+            }
+            
+            if (!filesUploaded) {
+                alert("Please upload PDF files first.");
+                return;
+            }
+            
+            // Prepare for answer loading
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `
+                <div class="loading-spinner small-spinner"></div>
+                <span>Processing...</span>
+            `;
+            loadingEl.style.display = "flex";
+            answerEl.textContent = "";
+            
+            try {
+                const response = await fetch("/ask_question", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ question })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`Request failed with status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                loadingEl.style.display = "none";
+                answerEl.textContent = data.answer;
+                
+                // Reset submit button
+                submitBtn.innerHTML = "Ask";
+                submitBtn.disabled = false;
+                
+            } catch (error) {
+                console.error("Question error:", error);
+                loadingEl.style.display = "none";
+                answerEl.textContent = "Error fetching answer: " + error.message;
+                
+                // Reset submit button
+                submitBtn.innerHTML = "Ask";
+                submitBtn.disabled = false;
+            }
+        });
+        
+        // Enable question submission when user types a question
+        questionInput.addEventListener("input", () => {
+            if (filesUploaded) {
+                submitBtn.disabled = questionInput.value.trim() === "";
+            }
+        });
+        
+        // Helper function to show status messages
+        function showStatus(message, type) {
+            uploadStatus.textContent = message;
+            uploadStatus.style.display = "block";
+            uploadStatus.className = "status-message";
+            
+            if (type === "success") {
+                uploadStatus.classList.add("status-success");
+            } else if (type === "error") {
+                uploadStatus.classList.add("status-error");
+            } else if (type === "loading") {
+                uploadStatus.classList.add("status-loading");
+                uploadStatus.innerHTML = `
+                    <div class="loading-spinner small-spinner"></div>
+                    <span>${message}</span>
+                `;
+            }
+        }
+    </script>
 </body>
 </html>
